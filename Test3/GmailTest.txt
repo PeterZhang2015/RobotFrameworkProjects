@@ -1,0 +1,91 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Variables ***
+${gmail_base_url}    https://mail.google.com/mail
+${login_username}    PythonPracticeMail@gmail.com
+${login_password}    woshinibaba
+${Browser}        Chrome
+${unread_mail_xpath}    xpath=//*[@class="zA zE"]//div[not(contains(text(), "unread"))]/*[@email="${mail_sender}"]
+${mail_sender}    zhangchongzheng@gmail.com
+${reply_content}    Simple mail test
+${unread_mail_number}    ${EMPTY}
+${unread_mail}    ${EMPTY}
+${reply_xpath}    xpath=//span[text()="Reply" and @role="link"]
+${reply_element}    ${EMPTY}
+${mail_send_button_xpath}    xpath=//div[text()="Send"]
+@{unread_mail_elements}
+${message_body_xpath}    xpath=//*[@aria-label="Message Body" and @role="textbox"]
+${inbox_xpath}    xpath=//*[contains(@aria-label,"Inbox") and contains(@aria-label,"unread")]
+${text}           ${EMPTY}
+${case_insensitive_text_path}    ${EMPTY}
+${index}          ${EMPTY}
+
+*** Test Cases ***
+Gmail_Test
+    Login test gmail account
+    Sleep    10
+    Reply unread mail elements
+
+*** Keywords ***
+Open gmail site url
+    open browser    ${gmail_base_url}    ${Browser}
+    log    open browser ${gmail_base_url}
+
+Enter login username
+    Input Text    xpath=//*[@aria-label="Email or phone"]    ${login_username}
+
+Enter password
+    Input Text    xpath://*[@aria-label="Enter your password"]    ${login_password}
+
+Click next button
+    Click Element    xpath=//span[text()="Next"]
+
+Enter password new
+    Input Text    name:password    ${login_password}
+
+Login test gmail account
+    Open gmail site url
+    log    Opening gmail site url
+    Enter login username
+    log    Entering login username ${login_username}
+    Click next button
+    log    Clicking next button
+    Sleep    2
+    Enter password
+    log    Entering login password ${login_password}
+    Click next button
+    log    Clicking next button
+
+Reply unread mail
+    [Arguments]    ${mail_sender}    ${reply_content}
+
+Set unread mail elements xpath
+    Set Varialbe
+
+Reply unread mail elements
+    log    ${unread_mail_xpath}
+    @{unread_mail_elements}    Get Webelements    ${unread_mail_xpath}
+    ${unread_mail_number}    Get Element Count    ${unread_mail_xpath}
+    log    unread mail number is ${unread_mail_number}
+    Run Keyword If    ${unread_mail_number}==0    fail    There is no unread mail from ${mail_sender} now.
+    : FOR    ${unread_mail}    IN    @{unread_mail_elements}
+    \    log    Find an unread mail from ${mail_sender} now.
+    \    set test variable    ${unread_mail}    @{unread_mail_elements}[0]
+    \    click element    ${unread_mail}
+    \    sleep    1
+    \    click element    ${reply_xpath}
+    \    input text    ${message_body_xpath}    ${reply_content}
+    \    click element    ${mail_send_button_xpath}
+    \    sleep    2
+    \    wait until element is visible    ${inbox_xpath}
+    \    click element    ${inbox_xpath}
+    \    sleep    1
+    \    @{unread_mail_elements}    Get Webelements    ${unread_mail_xpath}
+    \    ${unread_mail_number}    Get Element Count    ${unread_mail_xpath}
+
+Forward unread mails with keyword
+
+Set case insensitive text path
+    [Arguments]    ${text}
+    Set variable    ${case_insensitive_text_path}    xpath= '*[contains(translate(text(),"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "${text}")]'
