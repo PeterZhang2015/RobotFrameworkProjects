@@ -18,14 +18,32 @@ ${mail_send_button_xpath}    xpath=//div[text()="Send"]
 ${message_body_xpath}    xpath=//*[@aria-label="Message Body" and @role="textbox"]
 ${inbox_xpath}    xpath=//*[contains(@aria-label,"Inbox") and contains(@aria-label,"unread")]
 ${text}           ${EMPTY}
-${case_insensitive_text_path}    ${EMPTY}
 ${index}          ${EMPTY}
+${forward_target_mail}    chongzhengzhang@gmail.com
+${forward_message_body}    Please help me check this urgent mail, I am not available at this moment. Thank you very much.
+${keyword_to_forward}    urgent
+${unread_mail_with_keyword_elements}    ${EMPTY}
+${unread_mail_with_keyword_xpath}    //*[@class="zA zE"]//*[@role="link"]//*[contains(translate(text(),"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "${keyword_to_forward}")]
+${dropdown_menu_xpath}    //*[@aria-label="More"]
+${forward_xpath}    //*[text()="Forward"]
+${forward_to_xpath}    //*[@aria-label="To"]
+${gmail_profile_button_xpath}    //*[contains(@title,"Google Account:")]
+${gmail_logout_button_xpath}    //*[text()="Sign out"]
 
 *** Test Cases ***
-Gmail_Test
+Gmail_Forward_Test
     Login test gmail account
-    Sleep    10
+    Sleep    5
+    Forward unread mails with keyword
+    Sleep    1
+    Logout gmail account
+
+Gmail_Reply_Test
+    Login test gmail account
+    Sleep    5
     Reply unread mail elements
+    Sleep    1
+    Logout gmail account
 
 *** Keywords ***
 Open gmail site url
@@ -85,7 +103,36 @@ Reply unread mail elements
     \    ${unread_mail_number}    Get Element Count    ${unread_mail_xpath}
 
 Forward unread mails with keyword
+    log    ${unread_mail_with_keyword_xpath}
+    @{unread_mail_with_keyword_elements}    Get Webelements    ${unread_mail_with_keyword_xpath}
+    ${unread_mail_with_keyword_number}    Get Element Count    ${unread_mail_with_keyword_xpath}
+    log    unread mail with keyword number is ${unread_mail_with_keyword_number}
+    Run Keyword If    ${unread_mail_with_keyword_number}==0    fail    There is no unread mail with keyword ${keyword_to_forward} from ${mail_sender} now.
+    : FOR    ${unread_mail_with_keyword}    IN    @{unread_mail_with_keyword_elements}
+    \    log    Find an unread mail with keyword ${keyword_to_forward} from ${mail_sender} now.
+    \    set test variable    ${unread_mail_with_keyword}    @{unread_mail_with_keyword_elements}[0]
+    \    click element    ${unread_mail_with_keyword}
+    \    sleep    1
+    \    click element    ${dropdown_menu_xpath}
+    \    sleep    2
+    \    click element    ${forward_xpath}
+    \    sleep    1
+    \    input text    ${forward_to_xpath}    ${forward_target_mail}
+    \    sleep    1
+    \    input text    ${message_body_xpath}    ${forward_message_body}
+    \    click element    ${mail_send_button_xpath}
+    \    sleep    2
+    \    wait until element is visible    ${inbox_xpath}
+    \    click element    ${inbox_xpath}
+    \    sleep    1
+    \    @{unread_mail_with_keyword_elements}    Get Webelements    ${unread_mail_with_keyword_xpath}
+    \    ${unread_mail_with_keyword_number}    Get Element Count    ${unread_mail_with_keyword_xpath}
 
 Set case insensitive text path
     [Arguments]    ${text}
     Set variable    ${case_insensitive_text_path}    xpath= '*[contains(translate(text(),"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "${text}")]'
+
+Logout gmail account
+    click element    ${gmail_profile_button_xpath}
+    sleep    1
+    click element    ${gmail_logout_button_xpath}
