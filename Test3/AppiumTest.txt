@@ -1,0 +1,35 @@
+*** Settings ***
+Library           Selenium2Library
+Library           AppiumLibrary
+
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+${PLATFORM_NAME}    iOS
+${PLATFORM_VERSION}    11.0
+${DEVICE_NAME}    iPhone Simulator
+${APP}            settings
+${bundleId}       com.apple.Preferences
+${settings_General_xpath}    xpath=//XCUIElementTypeStaticText[@name=\"General\"]
+${settings_language_and_region_xpath}    xpath=//XCUIElementTypeCell[@name=\"Language & Region\"]
+${settings_Region_xpath}    xpath=//XCUIElementTypeCell[@name=\"Region\"]
+${settings_index_xpath}    xpath=(//XCUIElementTypeOther[@name=\"table index\"])[2]
+${settings_target_region_xpath}    xpath=//XCUIElementTypeStaticText[@name=\"American Samoa\"]
+
+*** Test Cases ***
+Change iOS region settings
+    log    Start changing iOS region settings.
+    Change iOS region settings
+
+*** Keywords ***
+Change iOS region settings
+    Open Application    ${REMOTE_URL}    app=${APP}    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    bundleId=${bundleId}
+    sleep    1
+    AppiumLibrary.click element    ${settings_General_xpath}
+    sleep    1
+    AppiumLibrary.click element    ${settings_language_and_region_xpath}
+    sleep    1
+    AppiumLibrary.click element    ${settings_Region_xpath}
+    sleep    2
+    AppiumLibrary.click element    ${settings_index_xpath}
+    sleep    1
+    AppiumLibrary.click element    ${settings_target_region_xpath}
