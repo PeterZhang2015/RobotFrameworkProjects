@@ -1,0 +1,33 @@
+*** Settings ***
+Library           SSHLibrary
+
+*** Variables ***
+${target_server}    wye074783pr30a.wg.dir.telstra.com
+${cmd_response}    ${EMPTY}
+${tested_handset_id}    ce12160c0a4d992604
+
+*** Test Cases ***
+SSH test
+    SSH handset server
+    Show adb devices
+    Show networkType
+    Show active APN
+
+*** Keywords ***
+SSH handset server
+    Open Connection    ${target_server}
+    login    n105030    auto@123
+
+Show adb devices
+    ${cmd_response}=    Execute Command    adb devices
+    log    ${cmd_response}
+
+Show networkType
+    ${cmd_response}=    Execute Command    adb -s ${tested_handset_id} shell getprop gsm.network.type
+    log    ${cmd_response}
+
+Show active APN
+    ${cmd_response}=    Execute Command    adb -s ${tested_handset_id} shell
+    ${cmd_response}=    Execute Command    su
+    ${cmd_response}=    Execute Command    content query --uri content://telephony/carriers/preferapn \ --projection _id,apn,name,user \ --sort "apn ASC"
+    log    ${cmd_response}
