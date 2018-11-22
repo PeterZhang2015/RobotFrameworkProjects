@@ -1,0 +1,29 @@
+*** Settings ***
+Library           iTestCommon.py
+Library           library_Command_Prompt_QC.py
+Library           Collections
+
+*** Variables ***
+${testProject}    spirent_slc
+${commandPromptSessionName}    Command_Prompt_ffsp
+${InputList}      ${3}    ${5}    ${70}    ${1}    ${32}    ${14}    ${16}
+...               ${21}    ${121}    ${50}    ${21}    ${32}
+${largestValue}    ${EMPTY}
+${jsonResult}     ${EMPTY}
+${keyLargestValue}    largest_value
+${keyType}        type
+
+*** Test Cases ***
+Get_List_Largest
+    connectItest
+    log    Input list: ${InputList}
+    Open Project    ${testProject}
+    Start Session    ${commandPromptSessionName}
+    ${jsonResult} =    Get_List_Largest    ${InputList}
+    Dictionary Should Contain Key    ${jsonResult}    ${keyLargestValue}
+    ${largestValue} =    Get From Dictionary    ${jsonResult}    ${keyLargestValue}
+    ${type} =    Get From Dictionary    ${jsonResult}    ${keyType}
+    log    Largest value: ${largestValue}
+    log    type value: ${type}
+
+*** Keywords ***
