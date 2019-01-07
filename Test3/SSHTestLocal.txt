@@ -1,8 +1,9 @@
 *** Settings ***
 Library           SSHLibrary
+Library           Process
 
 *** Variables ***
-${target_server}    147.132.114.31
+${target_server}    127.0.0.1
 ${cmd_response}    ${EMPTY}
 ${tested_handset_id}    ad06160308889743cc
 
@@ -11,12 +12,12 @@ SSH test
     SSH handset server
     Show adb devices
     Show networkType
-    Show active APN
+    Show active APN temp
 
 *** Keywords ***
 SSH handset server
     Open Connection    ${target_server}
-    login    n105030    auto@123
+    login    PeterZhang    123456
 
 Show adb devices
     ${cmd_response}=    Execute Command    adb devices
