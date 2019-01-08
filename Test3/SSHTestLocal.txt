@@ -28,5 +28,5 @@ Show networkType
     log    ${cmd_response}
 
 Show active APN
-    ${cmd_response}=    Execute Command    adb -s ${tested_handset_id} shell su -c 'content query --uri content://telephony/carriers/preferapn --projection _id,apn,name,user'
+    ${cmd_response}=    Execute Command    adb -s ${tested_handset_id} shell su -c 'ls; content query --uri content://telephony/carriers/preferapn --projection _id,apn,name,user'
     log    ${cmd_response}

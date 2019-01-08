@@ -3,6 +3,8 @@ Library           SSHLibrary
 
 *** Variables ***
 ${target_server}    147.132.114.31
+${login_username}    n105030
+${login_password}    auto@123
 ${cmd_response}    ${EMPTY}
 ${tested_handset_id}    ad06160308889743cc
 
@@ -16,7 +18,7 @@ SSH test
 *** Keywords ***
 SSH handset server
     Open Connection    ${target_server}
-    login    n105030    auto@123
+    login    ${login_username}    ${login_password}
 
 Show adb devices
     ${cmd_response}=    Execute Command    adb devices
@@ -27,5 +29,5 @@ Show networkType
     log    ${cmd_response}
 
 Show active APN
-    ${cmd_response}=    Execute Command    adb -s ${tested_handset_id} shell su -c 'content query --uri content://telephony/carriers/preferapn --projection _id,apn,name,user'
+    ${cmd_response}=    Execute Command    adb -s ${tested_handset_id} shell su -c 'ls;content query --uri content://telephony/carriers/preferapn --projection _id,apn,name,user'
     log    ${cmd_response}
