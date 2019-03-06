@@ -16,9 +16,9 @@ ${keyType}        type
 *** Test Cases ***
 Get_List_Largest
     connectItest
-    log    Input list: ${InputList}
     Open Project    ${testProject}
     Start Session    ${commandPromptSessionName}
+    log    Input list: ${InputList}
     ${jsonResult} =    Get_List_Largest    ${InputList}
     Dictionary Should Contain Key    ${jsonResult}    ${keyLargestValue}
     ${largestValue} =    Get From Dictionary    ${jsonResult}    ${keyLargestValue}

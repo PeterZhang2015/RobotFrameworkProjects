@@ -1,0 +1,9 @@
+*** Settings ***
+Library           OperatingSystem
+Library           String
+
+*** Test Cases ***
+Test IPConfig
+    ${frt}=    Run    ipconfig | find "IPv4"    #run command on windows command prompt.
+    ${IP}=    Fetch From Right    ${frt}    ${SPACE}    #get content from response.
+    Log To Console    [${IP}]    #Print on console.

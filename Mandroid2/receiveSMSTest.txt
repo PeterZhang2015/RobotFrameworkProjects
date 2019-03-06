@@ -1,0 +1,16 @@
+*** Settings ***
+Library           OperatingSystem
+Library           String
+
+*** Variables ***
+${jar_file_path}    C:\\Work\\Mandroid2\\MatriumMAndroid2-release.jar    #File location for Mandroid2 jar.
+${handset_id}     ce071607a2e74a1a05    #Handset ID for the SMS receiver user.
+${read_received_sms_code}    3002    #Mandroid2 code to read SMS.
+
+*** Test Cases ***
+receiveAndReadSMS
+    receiveAndReadSMS    #Run the defined robotframework keyword to read the latest received SMS.
+
+*** Keywords ***
+receiveAndReadSMS
+    ${response}=    Run    java -jar ${jar_file_path} ${handset_id} ${read_received_sms_code}    #Run Mandroid2 command to read the latest received SMS.

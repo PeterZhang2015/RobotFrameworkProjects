@@ -1,0 +1,18 @@
+*** Settings ***
+Library           OperatingSystem
+Library           String
+
+*** Variables ***
+${jar_file_path}    C:\\Work\\Mandroid2\\MatriumMAndroid2-release.jar    #File location for Mandroid2 jar.
+${handset_id}     ce071607a2e74a1a05    #Handset ID for the SMS sending user.
+${send_sms_code}    3001    #Mandroid2 code to send a SMS.
+${sms_receiving_user_number}    0432620487    #Phone number of the SMS receiver user.
+${sms_body}       TestforSMS    #SMS content body.
+
+*** Test Cases ***
+sendBasicSMS
+    sendBasicSMS    #Run the defined robotframework keyword to send a SMS.
+
+*** Keywords ***
+sendBasicSMS
+    ${response}=    Run    java -jar ${jar_file_path} ${handset_id} ${send_sms_code} sms_address ${sms_receiving_user_number} sms_body ${sms_body}    #Run Mandroid2 command to send a SMS.

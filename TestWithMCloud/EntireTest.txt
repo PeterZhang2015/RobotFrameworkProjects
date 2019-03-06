@@ -1,0 +1,107 @@
+*** Settings ***
+Library           OperatingSystem
+Library           String
+
+*** Variables ***
+${jar_file_path}    C:\\Work\\Mandroid2\\MatriumMAndroid2-release.jar    #File location for Mandroid2 jar.
+${caller_handset_id}    mcloud.matrium.com.au:7401    #Handset ID for the caller user.
+${called_handset_id}    mcloud.matrium.com.au:7569    #Handset ID for the called user.
+${test_apn_name}    Optus Yes Internet    #Testing APN name.
+${test_apn}       yesinternet    #Testing APN.
+${test_network_type}    3G    #Testing network type.
+${get_current_apn_code}    2010    #Mandroid2 code to get current APN.
+${switch_airplane_mode_code}    2006    #Mandroid2 code to switch airplane mode.
+${add_and_select_apn_code}    2043    #Mandroid2 code to add and select the APN.
+${get_current_network_type_code}    1021    #Mandroid2 code to get current network type.
+${set_network_type_code}    2052    #Mandroid2 code to set network type.
+${place_voice_call_code}    3010    #Mandroid2 code to place a voice call.
+${receive_voice_call_code}    3011    #Mandroid2 code to answer a voice call.
+${end_voice_call_code}    3012    #Mandroid2 code to end a voice call.
+${caller_user_number}    0403499391    #Phone number of the caller user.
+${called_user_number}    0479085367    #Phone number of the called user.
+${caller_duration}    10    #Call duration after answering the voice call.
+
+*** Test Cases ***
+EntireTest
+    connectToMcloudUser    handsetId= ${caller_handset_id}    #Connect to the caller user on mCloud.
+    Sleep    5    #Set waiting time for connecting.
+    ${callerCurrentNetworkType}=    checkCurrentNetworkType    handsetId= ${caller_handset_id}    #Get current network type for caller user.
+    Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    setNetworkType    handsetId= ${caller_handset_id}    network_mode=${test_network_type}
+    ...    AND    log    Switched to the configured network type "${test_network_type}" for ${caller_handset_id}.
+    ...    ELSE    log    There is no need to swtch the network type for ${caller_handset_id}.
+    ${callerCurrentNetworkType}=    checkCurrentNetworkType    handsetId= ${caller_handset_id}    #Get current network type for caller user.
+    Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    Fatal Error    msg="Failed to set network type for ${caller_handset_id} "
+    disconnectUsers    #Run the defined robotframework keyword to disconnect all users.
+
+*** Keywords ***
+connectToMcloudUser
+    [Arguments]    ${handsetId}
+    ${response}=    Run    adb connect ${handsetId}    #Connect to user on mCloud.
+
+switchAirplaneMode
+    [Arguments]    ${handsetId}    ${airplane_mode}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${switch_airplane_mode_code} airplane_mode_switch ${airplane_mode}    #Run Mandroid2 command to switch on the airplane mode.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    response=${data}
+
+attachHandset
+    [Arguments]    ${handsetId}
+    switchAirplaneMode    handsetId= ${handsetId}    airplane_mode=1    #Turn on the airplane mode.
+    Sleep    2    #Set waiting time.
+    switchAirplaneMode    handsetId= ${handsetId}    airplane_mode=0    #Turn off the airplane mode.
+
+checkCurrentAPN
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_current_apn_code}    #Run Mandroid2 command to get on current APN.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    response=${data}
+    ${current_apn}=    Set Variable    ${data['APN']}    #Get current APN from the formatted python dictionary.
+    ${current_apn_name}=    Set Variable    ${data['Name']}    #Get current APN name from the formatted python dictionary.
+    [Return]    ${current_apn}    ${current_apn_name}    #Return the current APN and APN name.
+
+addAndSelectAPN
+    [Arguments]    ${handsetId}    ${apnName}    ${apn}
+    ${apnName}=    Evaluate    '${apnName}'.replace(' ','\\ ')
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${add_and_select_apn_code} edit_apn_type 2 new_apn_name "${apnName}" new_apn "${apn}"
+
+checkCurrentNetworkType
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_current_network_type_code}    #Run Mandroid2 command to get current network type.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    response=${data}
+    ${current_network_type}=    Set Variable    ${data['networkType']}    #Get current network type from the formatted python dictionary.
+    [Return]    ${current_network_type}    #Return the current network type.
+
+setNetworkType
+    [Arguments]    ${handsetId}    ${network_mode}
+    ${network_mode}    Set Variable If    "${network_mode}"=="LTE"    9    "${network_mode}"=="3G"    2
+    ...    ELSE    0
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${set_network_type_code} network_mode ${network_mode}
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    response=${data}
+
+placeBasicVoiceCall
+    [Arguments]    ${handsetId}    ${calledUserNumber}
+    ${response}=    Run    java -jar ${jar_file_path} ${caller_handset_id} ${place_voice_call_code} call_phonenum ${called_user_number}    #Run Mandroid2 command to place a voice call.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    response=${data}
+
+receiveBasicVoiceCall
+    ${response}=    Run    java -jar ${jar_file_path} ${called_handset_id} ${receive_voice_call_code} incoming_number ${caller_user_number} call_duration ${caller_duration}    #Run Mandroid2 command to answer a voice call.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    response=${data}
+
+endBasicVoiceCall
+    ${response}=    Run    java -jar ${jar_file_path} ${called_handset_id} ${end_voice_call_code}    #Run Mandroid2 command to end a voice call.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    response=${data}
+
+disconnectUsers
+    ${response}=    Run    adb disconnect    #Disconnect all users.
+
+checkMandroidResultIsSuccess
+    [Arguments]    ${response}
+    ${is_success}=    Set Variable    ${response['isSuccess']}    #Get Mandroid execution result from the formatted python dictionary.
+    ${error_description}=    Set Variable    ${response['description']}    #Get error description from the formatted python dictionary.
+    Run Keyword If    ${is_success}==False    Run Keywords    disconnectUsers
+    ...    AND    Fatal Error    msg=${error_description}    #Disconnect users and abort the execution.

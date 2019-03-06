@@ -1,0 +1,17 @@
+*** Settings ***
+Library           OperatingSystem
+Library           String
+
+*** Variables ***
+${jar_file_path}    C:\\Work\\Mandroid2\\MatriumMAndroid2-release.jar    #File location for Mandroid2 jar.
+${handset_id}     ce071607a2e74a1a05    #Handset ID for the caller user.
+${place_voice_call_code}    3010    #Mandroid2 code to place a voice call.
+${called_user_number}    0432620487    #Phone number of the called user.
+
+*** Test Cases ***
+placeBasicVoiceCall
+    placeBasicVoiceCall    #Run the defined robotframework keyword to place a voice call.
+
+*** Keywords ***
+placeBasicVoiceCall
+    ${response}=    Run    java -jar ${jar_file_path} ${handset_id} ${place_voice_call_code} call_phonenum ${called_user_number}    #Run Mandroid2 command to place a voice call.

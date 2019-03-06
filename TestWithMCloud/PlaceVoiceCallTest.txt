@@ -1,0 +1,41 @@
+*** Settings ***
+Library           OperatingSystem
+Library           String
+
+*** Variables ***
+${jar_file_path}    C:\\Work\\Mandroid2\\MatriumMAndroid2-release.jar    #File location for Mandroid2 jar.
+${caller_handset_id}    mcloud.matrium.com.au:7609    #Handset ID for the caller user.
+${called_handset_id}    mcloud.matrium.com.au:7553    #Handset ID for the called user.
+${place_voice_call_code}    3010    #Mandroid2 code to place a voice call.
+${receive_voice_call_code}    3011    #Mandroid2 code to answer a voice call.
+${end_voice_call_code}    3012    #Mandroid2 code to end a voice call.
+${caller_user_number}    0479085367    #Phone number of the caller user.
+${called_user_number}    0402537622    #Phone number of the called user.
+${caller_duration}    10    #Call duration after answering the voice call.
+
+*** Test Cases ***
+BasicVoiceCall
+    connectToCallerUser    #Run the defined robotframework keyword to connect to the caller user on mCloud.
+    connectToCalledUser    #Run the defined robotframework keyword to connect to the called user on mCloud.
+    placeBasicVoiceCall    #Run the defined robotframework keyword to place a voice call.
+    receiveBasicVoiceCall    #Run the defined robotframework keyword to answer a voice call.
+    disconnectUsers    #Run the defined robotframework keyword to disconnect all users.
+
+*** Keywords ***
+connectToCallerUser
+    ${response}=    Run    adb connect ${caller_handset_id}    #Connect to the caller user on mCloud.
+
+connectToCalledUser
+    ${response}=    Run    adb connect ${called_handset_id}    #Connect to the called user on mCloud.
+
+placeBasicVoiceCall
+    ${response}=    Run    java -jar ${jar_file_path} ${caller_handset_id} ${place_voice_call_code} call_phonenum ${called_user_number}    #Run Mandroid2 command to place a voice call.
+
+receiveBasicVoiceCall
+    ${response}=    Run    java -jar ${jar_file_path} ${called_handset_id} ${receive_voice_call_code} incoming_number ${caller_user_number} call_duration ${caller_duration}    #Run Mandroid2 command to answer a voice call.
+
+endBasicVoiceCall
+    ${response}=    Run    java -jar ${jar_file_path} ${called_handset_id} ${end_voice_call_code}    #Run Mandroid2 command to end a voice call.
+
+disconnectUsers
+    ${response}=    Run    adb disconnect    #Disconnect all users.

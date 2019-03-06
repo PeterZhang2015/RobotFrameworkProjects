@@ -1,0 +1,23 @@
+*** Settings ***
+Library           OperatingSystem
+Library           String
+
+*** Variables ***
+${jar_file_path}    C:\\Work\\Mandroid2\\MatriumMAndroid2-release.jar    #File location for Mandroid2 jar.
+${handset_id}     ce071607a2e74a1a05    #Handset ID for the called user.
+${receive_voice_call_code}    3011    #Mandroid2 code to answer a voice call.
+${end_voice_call_code}    3012    #Mandroid2 code to end a voice call.
+${caller_user_number}    0432620487    #Phone number of the caller user.
+${caller_duration}    10    #Call duration after answering the voice call.
+
+*** Test Cases ***
+receiveBasicVoiceCall
+    receiveBasicVoiceCall    #Run the defined robotframework keyword to answer a voice call.
+    endBasicVoiceCall    #Run the defined robotframework keyword to end a voice call.
+
+*** Keywords ***
+receiveBasicVoiceCall
+    ${response}=    Run    java -jar ${jar_file_path} ${handset_id} ${receive_voice_call_code} incoming_number ${caller_user_number} call_duration ${caller_duration}    #Run Mandroid2 command to answer a voice call.
+
+endBasicVoiceCall
+    ${response}=    Run    java -jar ${jar_file_path} ${handset_id} ${end_voice_call_code}    #Run Mandroid2 command to end a voice call.
