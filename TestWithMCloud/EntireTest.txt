@@ -28,6 +28,8 @@ EntireTest
     ${caller_user_number}=    getUserNumber    handsetId= ${caller_handset_id}    #Get the caller user number.
     ${called_user_number}=    getUserNumber    handsetId= ${called_handset_id}    #Get the called user number.
     ${callerCurrentNetworkType}=    checkCurrentNetworkType    handsetId= ${caller_handset_id}    #Get current network type for caller user.
+    attachHandset    handsetId= ${caller_handset_id}    #Attach caller user.
+    attachHandset    handsetId= ${called_handset_id}    #Attach called user.
     Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    setNetworkType    handsetId= ${caller_handset_id}    network_mode=${test_network_type}
     ...    AND    log    Switched to the configured network type "${test_network_type}" for ${caller_handset_id}.
     ...    ELSE    log    There is no need to swtch the network type for ${caller_handset_id}.
