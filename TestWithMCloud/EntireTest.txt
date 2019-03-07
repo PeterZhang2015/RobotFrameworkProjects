@@ -4,8 +4,8 @@ Library           String
 
 *** Variables ***
 ${jar_file_path}    C:\\Work\\Mandroid2\\MatriumMAndroid2-release.jar    #File location for Mandroid2 jar.
-${caller_handset_id}    mcloud.matrium.com.au:7401    #Handset ID for the caller user.
-${called_handset_id}    mcloud.matrium.com.au:7569    #Handset ID for the called user.
+${caller_handset_id}    mcloud.matrium.com.au:7445    #Handset ID for the caller user.
+${called_handset_id}    mcloud.matrium.com.au:7477    #Handset ID for the called user.
 ${test_apn_name}    Optus Yes Internet    #Testing APN name.
 ${test_apn}       yesinternet    #Testing APN.
 ${test_network_type}    3G    #Testing network type.
@@ -14,17 +14,19 @@ ${switch_airplane_mode_code}    2006    #Mandroid2 code to switch airplane mode.
 ${add_and_select_apn_code}    2043    #Mandroid2 code to add and select the APN.
 ${get_current_network_type_code}    1021    #Mandroid2 code to get current network type.
 ${set_network_type_code}    2052    #Mandroid2 code to set network type.
+${get_user_number_code}    1010    #Mandroid2 code to get user number.
 ${place_voice_call_code}    3010    #Mandroid2 code to place a voice call.
 ${receive_voice_call_code}    3011    #Mandroid2 code to answer a voice call.
 ${end_voice_call_code}    3012    #Mandroid2 code to end a voice call.
-${caller_user_number}    0403499391    #Phone number of the caller user.
-${called_user_number}    0479085367    #Phone number of the called user.
 ${caller_duration}    10    #Call duration after answering the voice call.
 
 *** Test Cases ***
 EntireTest
     connectToMcloudUser    handsetId= ${caller_handset_id}    #Connect to the caller user on mCloud.
+    connectToMcloudUser    handsetId= ${called_handset_id}    #Connect to the called user on mCloud.
     Sleep    5    #Set waiting time for connecting.
+    ${caller_user_number}=    getUserNumber    handsetId= ${caller_handset_id}    #Get the caller user number.
+    ${called_user_number}=    getUserNumber    handsetId= ${called_handset_id}    #Get the called user number.
     ${callerCurrentNetworkType}=    checkCurrentNetworkType    handsetId= ${caller_handset_id}    #Get current network type for caller user.
     Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    setNetworkType    handsetId= ${caller_handset_id}    network_mode=${test_network_type}
     ...    AND    log    Switched to the configured network type "${test_network_type}" for ${caller_handset_id}.
@@ -79,6 +81,14 @@ setNetworkType
     ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${set_network_type_code} network_mode ${network_mode}
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
     checkMandroidResultIsSuccess    response=${data}
+
+getUserNumber
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_user_number_code}    #Run Mandroid2 command to get user number.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    response=${data}
+    ${user_number}=    Set Variable    ${data['msisdn']}    #Get user number from the formatted python dictionary.
+    [Return]    ${user_number}    #Return the user number.
 
 placeBasicVoiceCall
     [Arguments]    ${handsetId}    ${calledUserNumber}
