@@ -74,7 +74,8 @@ EntireTest
     Comment    Starting to perform a SMS.
     sendBasicSMS    ${caller_handset_id}    ${called_user_number}    ${sms_body}    #Send a basic SMS.
     Sleep    5    #Set duration for the SMS transmission.
-    receiveAndReadSMS    ${called_handset_id}    ${called_user_number}    #Read the latest received SMS.
+    ${received_sms_body}=    receiveAndReadSMS    ${called_handset_id}    ${called_user_number}    #Read the latest received SMS.
+    Run Keyword If    "${received_sms_body}"!="${sms_body}"    Run Keywords    Fatal Error    msg="Received SMS content ${received_sms_body} is not equal to the sending SMS content ${sms_body}"
     tearDownUsingDevices    @{device_serial_list}    #Tear down using devices on mcloud.
 
 Temp_Test
@@ -244,6 +245,8 @@ receiveAndReadSMS
     ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${read_received_sms_code}    #Run Mandroid2 command to read the latest received SMS.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
     checkMandroidResultIsSuccess    ${data}
+    ${sms_body}=    Set Variable    ${data['smsBody']}    #Get SMS body from the formatted python dictionary.
+    [Return]    ${sms_body}    #Return the SMS body.
 
 unlockScreen
     [Arguments]    ${handsetId}
