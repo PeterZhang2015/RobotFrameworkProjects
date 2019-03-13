@@ -43,6 +43,8 @@ EntireTest
     Comment    Get the user number of the caller user and called user on mcloud.
     ${caller_user_number}=    getUserNumber    ${caller_handset_id}    #Get the caller user number.
     ${called_user_number}=    getUserNumber    ${called_handset_id}    #Get the called user number.
+    ${caller_user_number}=    Evaluate    '${caller_user_number}'.replace('+61','0')    #Replace +61 with 0.
+    ${called_user_number}=    Evaluate    '${called_user_number}'.replace('+61','0')    #Replace +61 with 0.
     Comment    Starting to check whether it needs to switch APN for caller user.
     ${current_caller_apn}    ${current_caller_apn_name}    checkCurrentAPN    ${caller_handset_id}    #Check current APN for caller user.
     Run Keyword If    "${current_caller_apn}"!="${test_caller_apn}" or "${current_caller_apn_name}"!="${test_caller_apn_name}"    addAndSelectAPN    ${caller_handset_id}    ${test_caller_apn_name}    ${test_caller_apn}    #Switch APN on caller device if necessary.
