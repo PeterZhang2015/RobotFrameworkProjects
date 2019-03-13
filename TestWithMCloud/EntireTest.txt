@@ -70,7 +70,6 @@ REST_API_Test
     : FOR    ${device}    IN    @{devices_list}
     \    log    ${device['phone']['imsi']}
     \    Append To List    ${devices_url_list}    ${device['phone']['imsi']}
-    log    ${devices_url_list}
 
 *** Keywords ***
 requestDevice
@@ -79,9 +78,7 @@ requestDevice
     ${data}=    Create Dictionary    serial=${deviceSerial}    #Set device serial as the REST API POST body.
     POST    /user/devices    headers=${headers}    body=${data}    # Call REST API to use the device on mcloud.
     ${response}=    object    response body
-    log    requestDevice deviceSerial：${deviceSerial}
     Append To List    ${device_serial_list}    ${deviceSerial}    # Append device serial list for further tear down.
-    log    requestDevice device_serial_list：@{device_serial_list}
 
 remoteConnect
     [Arguments]    ${deviceSerial}
@@ -93,10 +90,8 @@ remoteConnect
 
 releaseDevice
     [Arguments]    ${deviceSerial}
-    log    calling releaseDevice keyword.
     ${headers}=    Create Dictionary    Authorization=${mcloud_token}    #Set authorization Token to acces mCloud through REST API.
     ${response}=    Delete    /user/devices/${deviceSerial}    headers=${headers}    # Call REST API to release the use of the testing device.
-    log    end of releaseDevice keyword.
 
 getDeviceSerialByImsi
     [Arguments]    ${userIMSI}
