@@ -13,7 +13,8 @@ ${caller_imsi}    505025504563848    #IMSI for the caller user.
 ${called_imsi}    505025702398631    #IMSI for the called user.
 ${test_apn_name}    Optus Yes Internet    #Testing APN name.
 ${test_apn}       yesinternet    #Testing APN.
-${test_network_type}    3G    #Testing network type.
+${test_network_type}    LTE    #Testing network type.
+${web_url}        https://www.google.com    #Web url for web browsing.
 ${get_current_apn_code}    2010    #Mandroid2 code to get current APN.
 ${switch_airplane_mode_code}    2006    #Mandroid2 code to switch airplane mode.
 ${add_and_select_apn_code}    2043    #Mandroid2 code to add and select the APN.
@@ -24,42 +25,41 @@ ${get_user_sn_code}    1006    #Mandroid2 code to get user sn.
 ${place_voice_call_code}    3010    #Mandroid2 code to place a voice call.
 ${receive_voice_call_code}    3011    #Mandroid2 code to answer a voice call.
 ${end_voice_call_code}    3012    #Mandroid2 code to end a voice call.
+${perform_web_browsing_code}    3030    #Mandroid2 code to perform web browsing.
 ${caller_duration}    10    #Call duration after answering the voice call.
 
 *** Test Cases ***
 EntireTest
-    ${caller_handset_id}=    connectToMcloudUser    userIMSI= ${caller_imsi}    #Connect to the caller user on mCloud.
-    ${called_handset_id}=    connectToMcloudUser    userIMSI= ${called_imsi}    #Connect to the called user on mCloud.
-    log    device serial list after connecting is:@{device_serial_list}
+    ${caller_handset_id}=    connectToMcloudUser    ${caller_imsi}    #Connect to the caller user on mCloud.
+    ${called_handset_id}=    connectToMcloudUser    ${called_imsi}    #Connect to the called user on mCloud.
     Sleep    5    #Set waiting time for connecting.
-    ${caller_user_number}=    getUserNumber    handsetId= ${caller_handset_id}    #Get the caller user number.
-    ${called_user_number}=    getUserNumber    handsetId= ${called_handset_id}    #Get the called user number.
-    ${callerCurrentNetworkType}=    checkCurrentNetworkType    handsetId= ${caller_handset_id}    #Get current network type for caller user.
-    attachHandset    handsetId= ${caller_handset_id}    #Attach caller user.
-    attachHandset    handsetId= ${called_handset_id}    #Attach called user.
-    Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    setNetworkType    handsetId= ${caller_handset_id}    network_mode=${test_network_type}
+    ${caller_user_number}=    getUserNumber    ${caller_handset_id}    #Get the caller user number.
+    ${called_user_number}=    getUserNumber    ${called_handset_id}    #Get the called user number.
+    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
+    attachHandset    ${caller_handset_id}    #Attach caller user.
+    attachHandset    ${called_handset_id}    #Attach called user.
+    Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    setNetworkType    ${caller_handset_id}    ${test_network_type}
     ...    AND    log    Switched to the configured network type "${test_network_type}" for ${caller_handset_id}.
     ...    ELSE    log    There is no need to swtch the network type for ${caller_handset_id}.
-    ${callerCurrentNetworkType}=    checkCurrentNetworkType    handsetId= ${caller_handset_id}    #Get current network type for caller user.
+    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
     Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    Fatal Error    msg="Failed to set network type for ${caller_handset_id} "
-    releaseDevice    handsetId= ${caller_handset_id}    #Release the caller device on mcloud.
-    releaseDevice    handsetId= ${called_handset_id}    #Release the called device on mcloud.
-    disconnectUsers    #Run the defined robotframework keyword to disconnect all users.
+    tearDownUsingDevices    @{device_serial_list}    #Tear down using devices on mcloud.
 
 Temp_Test
     ${caller_handset_id}=    connectToMcloudUser    ${caller_imsi}    #Connect to the caller user on mCloud.
-    log    device serial list after connecting is:@{device_serial_list}
     Sleep    5    #Set waiting time for connecting.
-    ${caller_user_number}=    getUserNumber    handsetId= ${caller_handset_id}    #Get the caller user number.
-    ${callerCurrentNetworkType}=    checkCurrentNetworkType    handsetId= ${caller_handset_id}    #Get current network type for caller user.
-    attachHandset    handsetId= ${caller_handset_id}    #Attach caller user.
-    Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    setNetworkType    handsetId= ${caller_handset_id}    network_mode=${test_network_type}
+    ${caller_user_number}=    getUserNumber    ${caller_handset_id}    #Get the caller user number.
+    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
+    attachHandset    ${caller_handset_id}    #Attach caller user.
+    Sleep    10    #Set waiting time for connecting.
+    Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    setNetworkType    ${caller_handset_id}    ${test_network_type}
     ...    AND    log    Switched to the configured network type "${test_network_type}" for ${caller_handset_id}.
     ...    ELSE    log    There is no need to swtch the network type for ${caller_handset_id}.
-    ${callerCurrentNetworkType}=    checkCurrentNetworkType    handsetId= ${caller_handset_id}    #Get current network type for caller user.
+    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
     Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    Fatal Error    msg="Failed to set network type for ${caller_handset_id} "
-    releaseTestingDevices    deviceSerialList= @{device_serial_list}    #Release the caller device on mcloud.
-    disconnectUsers    #Run the defined robotframework keyword to disconnect all users.
+    performWebBrowsing    ${caller_handset_id}    ${web_url}    #Browsing the web site.
+    Sleep    5    #Set waiting time for web browsing.
+    tearDownUsingDevices    @{device_serial_list}    #Tear down using devices on mcloud.
 
 REST_API_Test
     ${devices_url_list}=    Create List
@@ -71,18 +71,6 @@ REST_API_Test
     \    log    ${device['phone']['imsi']}
     \    Append To List    ${devices_url_list}    ${device['phone']['imsi']}
     log    ${devices_url_list}
-
-REST_API_Test2
-    ${caller_serial}=    getDeviceSerialByImsi    userIMSI=${caller_imsi}
-    Run Keyword If    "${caller_serial}"=="${EMPTY}"    Fatal Error    msg="Cannot find the matched IMSI ${caller_imsi} on mcloud"    #Cannot find the matched IMSI on mcloud.
-    requestDevice    deviceSerial=${caller_serial}
-    ${response}=    remoteConnect    deviceSerial=${caller_serial}
-    run Keyword If    "${response['success']}"!="True"    Fatal Error    msg="Fail to connect ${caller_imsi} on mcloud"
-    ...    ELSE    log    connect ${caller_imsi} on mcloud successfully    #Check connect result.
-    connectToMcloudUser    handsetId= ${response['remoteConnectUrl']}    #Connect to the caller user on mCloud.
-    sleep    20
-    disconnectUsers    #Run the defined robotframework keyword to disconnect all users.
-    releaseDevice    ${caller_serial}
 
 *** Keywords ***
 requestDevice
@@ -112,7 +100,6 @@ releaseDevice
 
 getDeviceSerialByImsi
     [Arguments]    ${userIMSI}
-    log    input imsi is ${userIMSI}
     ${device_serial}=    Set Variable    ${EMPTY}    # Initialize the device serial.
     ${headers}=    Create Dictionary    Authorization=${mcloud_token}    #Set authorization Token to acces mCloud through REST API.
     GET    /devices    headers=${headers}    # Call REST API to get the devices list on mcloud.
@@ -123,7 +110,7 @@ getDeviceSerialByImsi
     : FOR    ${device}    IN    @{devices_list}
     \    Continue For Loop If    "${device['present']}"!="True"    # Only check the present handsets.
     \    Continue For Loop If    "${device['phone']['imsi']}"=="None"    # Only check the handsets with IMSI.
-    \    ${device_serial}=    Set Variable If    "${device['phone']['imsi']}"=="${userIMSI}"    ${device['serial']}    ${EMPTY}    # Get the device serial of the matched IMSI.
+    \    ${device_serial}=    Set Variable If    "${device['phone']['imsi']}"=="${userIMSI}"    ${device['serial']}    # Get the device serial of the matched IMSI.
     \    Run Keyword If    "${device['phone']['imsi']}"=="${userIMSI}"    Exit For Loop    # Exit the loop when found the device serial of the matched IMSI.
     Comment    Check that whether the device has been occupied by someone else.
     ${current_device_owner_email}=    Set Variable If    "${device['owner']}"!="None"    ${device['owner']['email']}    "None"
@@ -135,28 +122,22 @@ getDeviceSerialByImsi
 
 connectToMcloudUser
     [Arguments]    ${userIMSI}
-    ${temp_device_serial}=    getDeviceSerialByImsi    userIMSI=${userIMSI}    #Try to find the device serial of the matched IMSI.
+    ${temp_device_serial}=    getDeviceSerialByImsi    ${userIMSI}    #Try to find the device serial of the matched IMSI.
     log    device serial in connectToMcloudUser ${temp_device_serial}
     Run Keyword If    "${temp_device_serial}"=="${EMPTY}"    Fatal Error    msg="Cannot find the matched IMSI ${userIMSI} on mcloud"    #Abort the execution if it cannot find the matched IMSI on mcloud.
-    requestDevice    deviceSerial=${temp_device_serial}    #Use the device on mcloud.
-    ${response}=    remoteConnect    deviceSerial=${temp_device_serial}    #Get the device remote control url.
+    requestDevice    ${temp_device_serial}    #Use the device on mcloud.
+    ${response}=    remoteConnect    ${temp_device_serial}    #Get the device remote control url.
     Comment    Abort the execution if it cannot get the remote control url of the testing device.
     run Keyword If    "${response['success']}"!="True"    Fatal Error    msg="Fail to remoteConnect ${userIMSI} on mcloud"
     ...    ELSE    log    connect ${userIMSI} on mcloud successfully
     ${cmd_response}=    Run    adb connect ${response['remoteConnectUrl']}    #ADB connect to the device on mCloud.
     [Return]    ${response['remoteConnectUrl']}
 
-connectToMcloudUseTemp
-    [Arguments]    ${userIMSITemp}
-    ${caller_serial}=    getDeviceSerialByImsi    userIMSI=${userIMSITemp}
-    log    device serial in REST_API_Test2 ${caller_serial}
-    Run Keyword If    "${caller_serial}"=="${EMPTY}"    Fatal Error    msg="Cannot find the matched IMSI ${caller_imsi} on mcloud"    #Cannot find the matched IMSI on mcloud.
-
 switchAirplaneMode
     [Arguments]    ${handsetId}    ${airplane_mode}
     ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${switch_airplane_mode_code} airplane_mode_switch ${airplane_mode}    #Run Mandroid2 command to switch on the airplane mode.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
-    checkMandroidResultIsSuccess    response=${data}
+    checkMandroidResultIsSuccess    ${data}
 
 attachHandset
     [Arguments]    ${handsetId}
@@ -168,7 +149,7 @@ checkCurrentAPN
     [Arguments]    ${handsetId}
     ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_current_apn_code}    #Run Mandroid2 command to get on current APN.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
-    checkMandroidResultIsSuccess    response=${data}
+    checkMandroidResultIsSuccess    ${data}
     ${current_apn}=    Set Variable    ${data['APN']}    #Get current APN from the formatted python dictionary.
     ${current_apn_name}=    Set Variable    ${data['Name']}    #Get current APN name from the formatted python dictionary.
     [Return]    ${current_apn}    ${current_apn_name}    #Return the current APN and APN name.
@@ -182,7 +163,7 @@ checkCurrentNetworkType
     [Arguments]    ${handsetId}
     ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_current_network_type_code}    #Run Mandroid2 command to get current network type.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
-    checkMandroidResultIsSuccess    response=${data}
+    checkMandroidResultIsSuccess    ${data}
     ${current_network_type}=    Set Variable    ${data['networkType']}    #Get current network type from the formatted python dictionary.
     [Return]    ${current_network_type}    #Return the current network type.
 
@@ -192,13 +173,13 @@ setNetworkType
     ...    ELSE    0
     ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${set_network_type_code} network_mode ${network_mode}
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
-    checkMandroidResultIsSuccess    response=${data}
+    checkMandroidResultIsSuccess    ${data}
 
 getUserNumber
     [Arguments]    ${handsetId}
     ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_user_number_code}    #Run Mandroid2 command to get user number.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
-    checkMandroidResultIsSuccess    response=${data}
+    checkMandroidResultIsSuccess    ${data}
     ${user_number}=    Set Variable    ${data['msisdn']}    #Get user number from the formatted python dictionary.
     [Return]    ${user_number}    #Return the user number.
 
@@ -206,7 +187,7 @@ getUserSN
     [Arguments]    ${handsetId}
     ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_user_sn_code}    #Run Mandroid2 command to get user sn.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
-    checkMandroidResultIsSuccess    response=${data}
+    checkMandroidResultIsSuccess    ${data}
     ${user_sn}=    Set Variable    ${data['AndroidId']}    #Get user sn from the formatted python dictionary.
     [Return]    ${user_sn}    #Return the user sn.
 
@@ -214,35 +195,36 @@ placeBasicVoiceCall
     [Arguments]    ${handsetId}    ${calledUserNumber}
     ${response}=    Run    java -jar ${jar_file_path} ${caller_handset_id} ${place_voice_call_code} call_phonenum ${called_user_number}    #Run Mandroid2 command to place a voice call.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
-    checkMandroidResultIsSuccess    response=${data}
+    checkMandroidResultIsSuccess    ${data}
 
 receiveBasicVoiceCall
     ${response}=    Run    java -jar ${jar_file_path} ${called_handset_id} ${receive_voice_call_code} incoming_number ${caller_user_number} call_duration ${caller_duration}    #Run Mandroid2 command to answer a voice call.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
-    checkMandroidResultIsSuccess    response=${data}
+    checkMandroidResultIsSuccess    ${data}
 
 endBasicVoiceCall
     ${response}=    Run    java -jar ${jar_file_path} ${called_handset_id} ${end_voice_call_code}    #Run Mandroid2 command to end a voice call.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
-    checkMandroidResultIsSuccess    response=${data}
+    checkMandroidResultIsSuccess    ${data}
 
-disconnectUsers
-    ${response}=    Run    adb disconnect    #Disconnect all users.
+performWebBrowsing
+    [Arguments]    ${handsetId}    ${web_url}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${perform_web_browsing_code} web_url ${web_url}    #Run Mandroid2 command to perform a web browsing.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
 
 checkMandroidResultIsSuccess
     [Arguments]    ${response}
-    log    calling checkMandroidResultIsSuccess keyword.
-    log    device_serial_list： @{device_serial_list}
     ${is_success}=    Set Variable    ${response['isSuccess']}    #Get Mandroid execution result from the formatted python dictionary.
-    ${error_description}=    Set Variable    ${response['description']}    #Get error description from the formatted python dictionary.
+    ${description}=    Set Variable    ${response['description']}    #Get error description from the formatted python dictionary.
     Comment    Tear down the using device and abort the execution if any Mandroid command was failed.
-    Run Keyword If    ${is_success}==False    Run Keywords    releaseTestingDevices    @{device_serial_list}
-    ...    AND    disconnectUsers
-    ...    AND    Fatal Error    msg=${error_description}    #Disconnect users and abort the execution.
+    Run Keyword If    ${is_success}==False    Run Keywords    tearDownUsingDevices    @{device_serial_list}
+    ...    AND    Fatal Error    msg=${description}    #Disconnect users and abort the execution.
 
-releaseTestingDevices
+tearDownUsingDevices
     [Arguments]    @{deviceSerialList}
     log    calling releaseTestingDevices keyword.
     : FOR    ${device_serial}    IN    @{deviceSerialList}
     \    log    device_serial is ${device_serial}.
     \    releaseDevice    ${device_serial}
+    ${response}=    Run    adb disconnect    #Disconnect all users.
