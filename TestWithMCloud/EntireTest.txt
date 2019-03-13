@@ -11,10 +11,14 @@ ${mcloud_token}    Bearer 6fc22b08ce00468fa56cc53a22384012e16d1ac9ab12403abeaaa5
 @{device_serial_list}    #Creat the using device serial list for tear down process.
 ${caller_imsi}    505025504563848    #IMSI for the caller user.
 ${called_imsi}    505025702398631    #IMSI for the called user.
-${test_apn_name}    Optus Yes Internet    #Testing APN name.
-${test_apn}       yesinternet    #Testing APN.
-${test_network_type}    LTE    #Testing network type.
+${test_caller_apn_name}    Temp    #Testing caller APN name.
+${test_caller_apn}    temp_apn    #Testing caller APN.
+${test_caller_network_type}    LTE    #Testing caller network type.
+${test_called_apn_name}    Optus Yes Internet    #Testing called APN name.
+${test_called_apn}    yesinternet    #Testing called APN.
+${test_called_network_type}    LTE    #Testing called network type.
 ${web_url}        https://www.google.com    #Web url for web browsing.
+${sms_body}       TestforSMSThroughRobotFramework1    #SMS content body.
 ${get_current_apn_code}    2010    #Mandroid2 code to get current APN.
 ${switch_airplane_mode_code}    2006    #Mandroid2 code to switch airplane mode.
 ${add_and_select_apn_code}    2043    #Mandroid2 code to add and select the APN.
@@ -26,39 +30,58 @@ ${place_voice_call_code}    3010    #Mandroid2 code to place a voice call.
 ${receive_voice_call_code}    3011    #Mandroid2 code to answer a voice call.
 ${end_voice_call_code}    3012    #Mandroid2 code to end a voice call.
 ${perform_web_browsing_code}    3030    #Mandroid2 code to perform web browsing.
-${caller_duration}    10    #Call duration after answering the voice call.
+${switch_screen_on_code}    1031    #Mandroid2 code to switch on screen.
+${switch_screen_off_code}    1032    #Mandroid2 code to switch off screen.
+${call_duration}    10    #Call duration after answering the voice call.
 
 *** Test Cases ***
 EntireTest
+    Comment    Connect the caller device and called device on mcloud.
     ${caller_handset_id}=    connectToMcloudUser    ${caller_imsi}    #Connect to the caller user on mCloud.
     ${called_handset_id}=    connectToMcloudUser    ${called_imsi}    #Connect to the called user on mCloud.
     Sleep    5    #Set waiting time for connecting.
+    Comment    Get the user number of the caller user and called user on mcloud.
     ${caller_user_number}=    getUserNumber    ${caller_handset_id}    #Get the caller user number.
     ${called_user_number}=    getUserNumber    ${called_handset_id}    #Get the called user number.
-    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
+    Comment    Starting to check whether it needs to switch APN for caller user.
+    ${current_caller_apn}    ${current_caller_apn_name}    checkCurrentAPN    ${caller_handset_id}    #Check current APN for caller user.
+    Run Keyword If    "${current_caller_apn}"!="${test_caller_apn}" or "${current_caller_apn_name}"!="${test_caller_apn_name}"    addAndSelectAPN    ${caller_handset_id}    ${test_caller_apn_name}    ${test_caller_apn}    #Switch APN on caller device if necessary.
+    Comment    Starting to check whether it needs to switch APN for called user.
+    ${current_called_apn}    ${current_called_apn_name}    checkCurrentAPN    ${called_handset_id}    #Check current APN for called user.
+    Run Keyword If    "${current_called_apn}"!="${test_called_apn}" or "${current_called_apn_name}"!="${test_called_apn_name}"    addAndSelectAPN    ${called_handset_id}    ${test_called_apn_name}    ${test_called_apn}    #Switch APN on called device if necessary.
+    Comment    Starting to check whether it needs to switch network type for caller user.
     attachHandset    ${caller_handset_id}    #Attach caller user.
-    attachHandset    ${called_handset_id}    #Attach called user.
-    Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    setNetworkType    ${caller_handset_id}    ${test_network_type}
-    ...    AND    log    Switched to the configured network type "${test_network_type}" for ${caller_handset_id}.
+    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
+    Run Keyword If    "${callerCurrentNetworkType}"!="${test_caller_network_type}"    Run Keywords    setNetworkType    ${caller_handset_id}    ${test_network_type}
+    ...    AND    log    Switched to the configured network type "${test_caller_network_type}" for ${caller_handset_id}.
     ...    ELSE    log    There is no need to swtch the network type for ${caller_handset_id}.
     ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
-    Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    Fatal Error    msg="Failed to set network type for ${caller_handset_id} "
+    Run Keyword If    "${callerCurrentNetworkType}"!="${test_caller_network_type}"    Run Keywords    Fatal Error    msg="Failed to set network type for ${caller_handset_id} "
+    Comment    Starting to check whether it needs to switch network type for called user.
+    attachHandset    ${called_handset_id}    #Attach called user.
+    ${calledCurrentNetworkType}=    checkCurrentNetworkType    ${called_handset_id}    #Get current network type for called user.
+    Run Keyword If    "${calledCurrentNetworkType}"!="${test_called_network_type}"    Run Keywords    setNetworkType    ${called_handset_id}    ${test_network_type}
+    ...    AND    log    Switched to the configured network type "${test_called_network_type}" for ${called_handset_id}.
+    ...    ELSE    log    There is no need to swtch the network type for ${called_handset_id}.
+    ${calledCurrentNetworkType}=    checkCurrentNetworkType    ${called_handset_id}    #Get current network type for caller user.
+    Run Keyword If    "${calledCurrentNetworkType}"!="${test_called_network_type}"    Run Keywords    Fatal Error    msg="Failed to set network type for ${caller_handset_id} "
+    Comment    Starting to perform web browsing on caller user.
+    performWebBrowsing    ${caller_handset_id}    ${web_url}    #Browsing the web site.
+    Sleep    5    #Set waiting time for web browsing.
+    Comment    Starting to perform a voice call.
+    placeBasicVoiceCall    ${caller_handset_id}    ${called_user_number}    #Place a voice call on caller side.
+    receiveBasicVoiceCall    ${called_handset_id}    ${caller_user_number}    ${call_duration}    #Receive a voice call on called side.
+    Comment    Starting to perform a SMS.
+    sendBasicSMS    ${caller_handset_id}    ${called_user_number}    ${sms_body}    #Send a basic SMS.
+    Sleep    5    #Set duration for the SMS transmission.
+    receiveAndReadSMS    ${called_handset_id}    ${called_user_number}    #Read the latest received SMS.
     tearDownUsingDevices    @{device_serial_list}    #Tear down using devices on mcloud.
 
 Temp_Test
     ${caller_handset_id}=    connectToMcloudUser    ${caller_imsi}    #Connect to the caller user on mCloud.
     Sleep    5    #Set waiting time for connecting.
-    ${caller_user_number}=    getUserNumber    ${caller_handset_id}    #Get the caller user number.
-    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
-    attachHandset    ${caller_handset_id}    #Attach caller user.
-    Sleep    10    #Set waiting time for connecting.
-    Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    setNetworkType    ${caller_handset_id}    ${test_network_type}
-    ...    AND    log    Switched to the configured network type "${test_network_type}" for ${caller_handset_id}.
-    ...    ELSE    log    There is no need to swtch the network type for ${caller_handset_id}.
-    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
-    Run Keyword If    "${callerCurrentNetworkType}"!="${test_network_type}"    Run Keywords    Fatal Error    msg="Failed to set network type for ${caller_handset_id} "
-    performWebBrowsing    ${caller_handset_id}    ${web_url}    #Browsing the web site.
-    Sleep    5    #Set waiting time for web browsing.
+    ${current_apn}    ${current_apn_name}    checkCurrentAPN    ${caller_handset_id}    #Check current APN for caller user.
+    Run Keyword If    "${current_apn}"!="${test_caller_apn}" or "${current_apn_name}"!="${test_caller_apn_name}"    addAndSelectAPN    ${caller_handset_id}    ${test_caller_apn_name}    ${test_caller_apn}
     tearDownUsingDevices    @{device_serial_list}    #Tear down using devices on mcloud.
 
 REST_API_Test
@@ -150,8 +173,10 @@ checkCurrentAPN
 
 addAndSelectAPN
     [Arguments]    ${handsetId}    ${apnName}    ${apn}
-    ${apnName}=    Evaluate    '${apnName}'.replace(' ','\\ ')
-    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${add_and_select_apn_code} edit_apn_type 2 new_apn_name "${apnName}" new_apn "${apn}"
+    ${apnName}=    Evaluate    '${apnName}'.replace(' ','0')
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${add_and_select_apn_code} edit_apn_type 2 new_apn_name "${apnName}" new_apn "${apn}" isRooted false
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
 
 checkCurrentNetworkType
     [Arguments]    ${handsetId}
@@ -165,7 +190,7 @@ setNetworkType
     [Arguments]    ${handsetId}    ${network_mode}
     ${network_mode}    Set Variable If    "${network_mode}"=="LTE"    9    "${network_mode}"=="3G"    2
     ...    ELSE    0
-    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${set_network_type_code} network_mode ${network_mode}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${set_network_type_code} network_mode ${network_mode} isRooted false
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
     checkMandroidResultIsSuccess    ${data}
 
@@ -187,23 +212,48 @@ getUserSN
 
 placeBasicVoiceCall
     [Arguments]    ${handsetId}    ${calledUserNumber}
-    ${response}=    Run    java -jar ${jar_file_path} ${caller_handset_id} ${place_voice_call_code} call_phonenum ${called_user_number}    #Run Mandroid2 command to place a voice call.
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${place_voice_call_code} call_phonenum ${calledUserNumber}    #Run Mandroid2 command to place a voice call.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
     checkMandroidResultIsSuccess    ${data}
 
 receiveBasicVoiceCall
-    ${response}=    Run    java -jar ${jar_file_path} ${called_handset_id} ${receive_voice_call_code} incoming_number ${caller_user_number} call_duration ${caller_duration}    #Run Mandroid2 command to answer a voice call.
+    [Arguments]    ${handsetId}    ${callerUserNumber}    ${callDuration}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${receive_voice_call_code} incoming_number ${callerUserNumber} call_duration ${callDuration}    #Run Mandroid2 command to answer a voice call.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
     checkMandroidResultIsSuccess    ${data}
 
 endBasicVoiceCall
-    ${response}=    Run    java -jar ${jar_file_path} ${called_handset_id} ${end_voice_call_code}    #Run Mandroid2 command to end a voice call.
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${end_voice_call_code}    #Run Mandroid2 command to end a voice call.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
     checkMandroidResultIsSuccess    ${data}
 
 performWebBrowsing
-    [Arguments]    ${handsetId}    ${web_url}
-    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${perform_web_browsing_code} web_url ${web_url}    #Run Mandroid2 command to perform a web browsing.
+    [Arguments]    ${handsetId}    ${webUrl}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${perform_web_browsing_code} web_url ${webUrl}    #Run Mandroid2 command to perform a web browsing.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+sendBasicSMS
+    [Arguments]    ${handsetId}    ${receiveUserNumber}    ${smsBody}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${send_sms_code} sms_address ${receiveUserNumber} sms_body ${smsBody}    #Run Mandroid2 command to send a SMS.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+receiveAndReadSMS
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${read_received_sms_code}    #Run Mandroid2 command to read the latest received SMS.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+unlockScreen
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${switch_screen_on_code}    #Run Mandroid2 command to switch on device screen.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+lockScreen
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${switch_screen_off_code}    #Run Mandroid2 command to switch off device screen.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
     checkMandroidResultIsSuccess    ${data}
 
