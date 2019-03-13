@@ -122,11 +122,10 @@ getDeviceSerialByImsi
 
 connectToMcloudUser
     [Arguments]    ${userIMSI}
-    ${temp_device_serial}=    getDeviceSerialByImsi    ${userIMSI}    #Try to find the device serial of the matched IMSI.
-    log    device serial in connectToMcloudUser ${temp_device_serial}
-    Run Keyword If    "${temp_device_serial}"=="${EMPTY}"    Fatal Error    msg="Cannot find the matched IMSI ${userIMSI} on mcloud"    #Abort the execution if it cannot find the matched IMSI on mcloud.
-    requestDevice    ${temp_device_serial}    #Use the device on mcloud.
-    ${response}=    remoteConnect    ${temp_device_serial}    #Get the device remote control url.
+    ${device_serial}=    getDeviceSerialByImsi    ${userIMSI}    #Try to find the device serial of the matched IMSI.
+    Run Keyword If    "${device_serial}"=="${EMPTY}"    Fatal Error    msg="Cannot find the matched IMSI ${userIMSI} on mcloud"    #Abort the execution if it cannot find the matched IMSI on mcloud.
+    requestDevice    ${device_serial}    #Use the device on mcloud.
+    ${response}=    remoteConnect    ${device_serial}    #Get the device remote control url.
     Comment    Abort the execution if it cannot get the remote control url of the testing device.
     run Keyword If    "${response['success']}"!="True"    Fatal Error    msg="Fail to remoteConnect ${userIMSI} on mcloud"
     ...    ELSE    log    connect ${userIMSI} on mcloud successfully
@@ -223,7 +222,6 @@ checkMandroidResultIsSuccess
 
 tearDownUsingDevices
     [Arguments]    @{deviceSerialList}
-    log    calling releaseTestingDevices keyword.
     : FOR    ${device_serial}    IN    @{deviceSerialList}
     \    log    device_serial is ${device_serial}.
     \    releaseDevice    ${device_serial}
