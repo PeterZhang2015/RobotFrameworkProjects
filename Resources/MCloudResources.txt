@@ -1,0 +1,52 @@
+*** Settings ***
+Library           REST    ${mcloud_rest_api_base}
+Library           Collections
+
+*** Variables ***
+${mcloud_rest_api_base}    http://mcloud.matrium.com.au:7100/api/v1    #mCloud REST API base.
+${mcloud_login_user_email}    Peter.Zhang@matrium.com.au    #user email to login mcloud.
+${mcloud_token}    Bearer 6fc22b08ce00468fa56cc53a22384012e16d1ac9ab12403abeaaa5e14496239e    #mCloud REST API access token.
+
+*** Keywords ***
+requestDevice
+    [Arguments]    ${deviceSerial}
+    ${headers}=    Create Dictionary    Authorization=${mcloud_token}    #Set authorization Token to acces mCloud through REST API.
+    ${data}=    Create Dictionary    serial=${deviceSerial}    #Set device serial as the REST API POST body.
+    POST    /user/devices    headers=${headers}    body=${data}    # Call REST API to use the device on mcloud.
+    ${response}=    object    response body
+    Append To List    ${device_serial_list}    ${deviceSerial}    # Append device serial list for further tear down.
+
+remoteConnect
+    [Arguments]    ${deviceSerial}
+    ${headers}=    Create Dictionary    Authorization=${mcloud_token}    #Set authorization Token to acces mCloud through REST API.
+    ${data}=    Create Dictionary    serial=${deviceSerial}
+    POST    /user/devices/${deviceSerial}/remoteConnect    headers=${headers}    body=${data}    # Call REST API to get the remote debug URL of the testing device for further adb control.
+    ${body}=    object    response body
+    [Return]    ${body[0]}
+
+releaseDevice
+    [Arguments]    ${deviceSerial}
+    ${headers}=    Create Dictionary    Authorization=${mcloud_token}    #Set authorization Token to acces mCloud through REST API.
+    ${response}=    Delete    /user/devices/${deviceSerial}    headers=${headers}    # Call REST API to release the use of the testing device.
+
+getDeviceSerialByImsi
+    [Arguments]    ${userIMSI}
+    ${device_serial}=    Set Variable    ${EMPTY}    # Initialize the device serial.
+    ${headers}=    Create Dictionary    Authorization=${mcloud_token}    #Set authorization Token to acces mCloud through REST API.
+    GET    /devices    headers=${headers}    # Call REST API to get the devices list on mcloud.
+    ${body}=    object    response body    # Get the response body.
+    @{devices_list}=    Set Variable    ${body[0]['devices']}    # Get device list from response body.
+    Run Keyword If    "len(@{devices_list})"=="0"    Fatal Error    msg="There is not handset connected to the mcloud."    # Check whether any handset is connected on mcloud.
+    Comment    Loop to check the device that can be matched with the testing user IMSI.
+    : FOR    ${device}    IN    @{devices_list}
+    \    Continue For Loop If    "${device['present']}"!="True"    # Only check the present handsets.
+    \    Continue For Loop If    "${device['phone']['imsi']}"=="None"    # Only check the handsets with IMSI.
+    \    ${device_serial}=    Set Variable If    "${device['phone']['imsi']}"=="${userIMSI}"    ${device['serial']}    # Get the device serial of the matched IMSI.
+    \    Run Keyword If    "${device['phone']['imsi']}"=="${userIMSI}"    Exit For Loop    # Exit the loop when found the device serial of the matched IMSI.
+    Comment    Check that whether the device has been occupied by someone else.
+    ${current_device_owner_email}=    Set Variable If    "${device['owner']}"!="None"    ${device['owner']['email']}    "None"
+    Run Keyword If    "${device['owner']}"=="None"    log    "Handset with IMSI ${userIMSI} has not been occupied."
+    ...    ELSE IF    "${current_device_owner_email}"=="${mcloud_login_user_email}"    Run Keywords    releaseDevice    ${device_serial}
+    ...    AND    log    "Handset with IMSI ${userIMSI} has been occupied by myself ${mcloud_login_user_email}."
+    ...    ELSE    Fatal Error    msg="Handset with IMSI ${userIMSI} has been occupied by mcloud user ${device['owner']['email']}."
+    [Return]    ${device_serial}
