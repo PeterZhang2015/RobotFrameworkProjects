@@ -1,4 +1,5 @@
 *** Settings ***
+Test Teardown     Run Keyword If Test Failed    tearDownUsingDevices    @{device_serial_list}    #Tear down using devices on mcloud.
 Resource          ../Resources/MCloudResources.txt
 Resource          ../Resources/MAndroid2Resources.txt
 
