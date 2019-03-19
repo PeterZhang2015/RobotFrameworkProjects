@@ -1,0 +1,15 @@
+*** Settings ***
+Test Teardown     Run Keyword If Test Failed    tearDown
+
+*** Variables ***
+${test}           https://google.com.au
+
+*** Test Cases ***
+Temp
+    ${data}=    Evaluate    json.loads("""${test}""")    json
+    Suite Teardown
+    log    ${data}
+
+*** Keywords ***
+tearDown
+    log    "tear down process"
