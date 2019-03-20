@@ -18,5 +18,4 @@ Temp
 
 *** Keywords ***
 tearDown
-    ${value}=    Set Variable    3
     log    "tear down process"    DEBUG

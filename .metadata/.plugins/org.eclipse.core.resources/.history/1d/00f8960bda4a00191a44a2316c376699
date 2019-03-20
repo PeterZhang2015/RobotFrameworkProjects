@@ -6,17 +6,14 @@ ${test}           https://google.com.au
 
 *** Test Cases ***
 Temp
-
-    ${value}=    Set Variable    0
+    Set Log Level    WARN
+    sleep    2
     log    "beginning"    level=WARN
-    ${value}=    Set Variable    1
     log    "beginning info"
-    ${value}=    Set Variable    2
     ${data}=    Evaluate    json.loads("""${test}""")    json
     Suite Teardown
     log    ${data}    --loglevel    DEBUG
 
 *** Keywords ***
 tearDown
-    ${value}=    Set Variable    3
     log    "tear down process"    DEBUG

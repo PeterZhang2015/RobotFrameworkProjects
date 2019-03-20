@@ -6,7 +6,8 @@ ${test}           https://google.com.au
 
 *** Test Cases ***
 Temp
-
+    Set Log Level    WARN
+    sleep    2
     ${value}=    Set Variable    0
     log    "beginning"    level=WARN
     ${value}=    Set Variable    1
@@ -18,5 +19,4 @@ Temp
 
 *** Keywords ***
 tearDown
-    ${value}=    Set Variable    3
     log    "tear down process"    DEBUG

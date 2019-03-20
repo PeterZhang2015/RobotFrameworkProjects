@@ -1,0 +1,69 @@
+!SESSION 2019-03-20 17:11:15.565 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.8.0_201
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_AU
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY org.eclipse.core.net 4 0 2019-03-20 17:13:38.355
+!MESSAGE WinHttp.DetectAutoProxyConfigUrl for wpad failed with error 'The Proxy Auto-configuration URL was not found.
+' #12180.
+
+!ENTRY org.eclipse.core.net 4 0 2019-03-20 17:13:38.537
+!MESSAGE WinHttp.GetProxyForUrl for pac failed with error 'The proxy auto-configuration script could not be downloaded
+' #12167.
+
+!ENTRY org.eclipse.ui.ide 4 0 2019-03-20 17:14:43.238
+!MESSAGE Could not import project located at C:\Work\Projects\RobotFrameworkProjects
+!STACK 0
+org.eclipse.ui.internal.wizards.datatransfer.CouldNotImportProjectException: Could not import project located at C:\Work\Projects\RobotFrameworkProjects
+	at org.eclipse.ui.internal.wizards.datatransfer.SmartImportJob.toExistingOrNewProject(SmartImportJob.java:568)
+	at org.eclipse.ui.internal.wizards.datatransfer.SmartImportJob.run(SmartImportJob.java:252)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:60)
+Caused by: org.eclipse.core.internal.resources.ResourceException: Invalid project description.
+	at org.eclipse.core.internal.resources.Project.checkDescription(Project.java:170)
+	at org.eclipse.core.internal.resources.Project.assertCreateRequirements(Project.java:54)
+	at org.eclipse.core.internal.resources.Project.create(Project.java:264)
+	at org.eclipse.core.internal.resources.Project.create(Project.java:248)
+	at org.eclipse.ui.internal.wizards.datatransfer.SmartImportJob.createOrImportProject(SmartImportJob.java:607)
+	at org.eclipse.ui.internal.wizards.datatransfer.SmartImportJob.toExistingOrNewProject(SmartImportJob.java:555)
+	... 2 more
+
+!ENTRY org.eclipse.jface 2 0 2019-03-20 17:31:31.801
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2019-03-20 17:31:31.801
+!MESSAGE A conflict occurred for CTRL+=:
+Binding(CTRL+=,
+	ParameterizedCommand(Command(org.eclipse.ui.edit.text.zoomIn,Zoom In,
+		Zoom in text, increase default font size for text editors,
+		Category(org.eclipse.ui.category.textEditor,Text Editing,Text Editing Commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@794b139b,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.textEditorScope,,,system)
+Binding(CTRL+=,
+	ParameterizedCommand(Command(org.robotframework.red.zoomInText,Zoom In,
+		,
+		Category(org.robotframework.ide.eclipse.robotCommands,Robot,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@77217c17,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.robotframework.ide.eclipse.tableeditor.sources.context,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2019-03-20 17:31:31.801
+!MESSAGE A conflict occurred for CTRL+-:
+Binding(CTRL+-,
+	ParameterizedCommand(Command(org.eclipse.ui.edit.text.zoomOut,Zoom Out,
+		Zoom out text, decrease default font size for text editors,
+		Category(org.eclipse.ui.category.textEditor,Text Editing,Text Editing Commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@87276c4,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.textEditorScope,,,system)
+Binding(CTRL+-,
+	ParameterizedCommand(Command(org.robotframework.red.zoomOutText,Zoom Out,
+		,
+		Category(org.robotframework.ide.eclipse.robotCommands,Robot,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@38f4a641,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.robotframework.ide.eclipse.tableeditor.sources.context,,,system)
