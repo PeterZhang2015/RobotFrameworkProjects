@@ -3,21 +3,24 @@ Library           OperatingSystem
 
 *** Variables ***
 ${jar_file_path}    C:\\Work\\Mandroid2\\MatriumMAndroid2-release.jar    #File location for Mandroid2 jar.
-${get_current_apn_code}    2010    #Mandroid2 code to get current APN.
-${switch_airplane_mode_code}    2006    #Mandroid2 code to switch airplane mode.
-${add_and_select_apn_code}    2043    #Mandroid2 code to add and select the APN.
-${get_current_network_type_code}    1021    #Mandroid2 code to get current network type.
-${set_network_type_code}    2052    #Mandroid2 code to set network type.
-${get_user_number_code}    1010    #Mandroid2 code to get user number.
 ${get_user_sn_code}    1006    #Mandroid2 code to get user sn.
+${get_user_number_code}    1010    #Mandroid2 code to get user number.
+${get_current_network_type_code}    1021    #Mandroid2 code to get current network type.
+${switch_screen_on_code}    1031    #Mandroid2 code to switch on screen.
+${switch_screen_off_code}    1032    #Mandroid2 code to switch off screen.
+${switch_airplane_mode_code}    2006    #Mandroid2 code to switch airplane mode.
+${get_current_apn_code}    2010    #Mandroid2 code to get current APN.
+${add_and_select_apn_code}    2043    #Mandroid2 code to add and select the APN.
+${set_network_type_code}    2052    #Mandroid2 code to set network type.
+${send_sms_code}    3001    #Mandroid2 code to send a SMS.
+${read_received_sms_code}    3002    #Mandroid2 code to read SMS.
 ${place_voice_call_code}    3010    #Mandroid2 code to place a voice call.
 ${receive_voice_call_code}    3011    #Mandroid2 code to answer a voice call.
 ${end_voice_call_code}    3012    #Mandroid2 code to end a voice call.
 ${perform_web_browsing_code}    3030    #Mandroid2 code to perform web browsing.
-${send_sms_code}    3001    #Mandroid2 code to send a SMS.
-${read_received_sms_code}    3002    #Mandroid2 code to read SMS.
-${switch_screen_on_code}    1031    #Mandroid2 code to switch on screen.
-${switch_screen_off_code}    1032    #Mandroid2 code to switch off screen.
+${sftp_download_code}    3050    #Mandroid2 code to sftp downloading.
+${sftp_upload_code}    3051    #Mandroid2 code to sftp uploading.
+
 
 *** Keywords ***
 switchAirplaneMode
@@ -31,6 +34,7 @@ attachHandset
     switchAirplaneMode    handsetId= ${handsetId}    airplane_mode=1    #Turn on the airplane mode.
     Sleep    2    #Set waiting time.
     switchAirplaneMode    handsetId= ${handsetId}    airplane_mode=0    #Turn off the airplane mode.
+    Sleep    5    #Set waiting time.
 
 checkCurrentAPN
     [Arguments]    ${handsetId}
@@ -44,7 +48,7 @@ checkCurrentAPN
 addAndSelectAPN
     [Arguments]    ${handsetId}    ${apnName}    ${apn}
     ${apnName}=    Evaluate    '${apnName}'.replace(' ','0')
-    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${add_and_select_apn_code} edit_apn_type 2 new_apn_name "${apnName}" new_apn "${apn}" isRooted false
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${add_and_select_apn_code} edit_apn_type 2 new_apn_name "${apnName}" new_apn "${apn}"
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
     checkMandroidResultIsSuccess    ${data}
 
@@ -53,14 +57,15 @@ checkCurrentNetworkType
     ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_current_network_type_code}    #Run Mandroid2 command to get current network type.
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
     checkMandroidResultIsSuccess    ${data}
-    ${current_network_type}=    Set Variable    ${data['networkType']}    #Get current network type from the formatted python dictionary.
+    ${current_network_type}    Set Variable If    "${data['networkType']}"=="LTE"    LTE    "${data['networkType']}"=="UMTS"    3G    "${data['networkType']}"=="HSPAP"    3G
+    ...    ELSE    other    #Get current network type from the formatted python dictionary.
     [Return]    ${current_network_type}    #Return the current network type.
 
 setNetworkType
     [Arguments]    ${handsetId}    ${network_mode}
-    ${network_mode}    Set Variable If    "${network_mode}"=="LTE"    9    "${network_mode}"=="3G"    2
+    ${network_mode}    Set Variable If    "${network_mode}"=="LTE"    9    "${network_mode}"=="HSPAP"    2    "${network_mode}"=="UMTS"    2
     ...    ELSE    0
-    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${set_network_type_code} network_mode ${network_mode} isRooted false
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${set_network_type_code} network_mode ${network_mode}
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
     checkMandroidResultIsSuccess    ${data}
 
@@ -115,6 +120,13 @@ receiveAndReadSMS
     ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
     ${sms_body}=    Set Variable    ${data['smsBody']}    #Get SMS body from the formatted python dictionary.
     [Return]    ${sms_body}    #Return the SMS body.
+
+
+performSftpUploading
+    [Arguments]    ${handsetId}    ${sftp_file_path}    ${sftp_port}    ${sftp_username}    ${sftp_pwd}    ${sftp_server_ip}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${sftp_upload_code} sftp_file_path ${sftp_file_path} sftp_port ${sftp_port} sftp_username ${sftp_username} sftp_pwd ${sftp_pwd} sftp_server_ip ${sftp_server_ip}    #Run Mandroid2 command to perform a sftp uploading.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
 
 unlockScreen
     [Arguments]    ${handsetId}

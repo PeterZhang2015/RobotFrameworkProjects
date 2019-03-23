@@ -1,0 +1,149 @@
+*** Settings ***
+Library           OperatingSystem
+
+*** Variables ***
+${jar_file_path}    C:\\Work\\Mandroid2\\MatriumMAndroid2-release.jar    #File location for Mandroid2 jar.
+${get_current_apn_code}    2010    #Mandroid2 code to get current APN.
+${switch_airplane_mode_code}    2006    #Mandroid2 code to switch airplane mode.
+${add_and_select_apn_code}    2043    #Mandroid2 code to add and select the APN.
+${get_current_network_type_code}    1021    #Mandroid2 code to get current network type.
+${set_network_type_code}    2052    #Mandroid2 code to set network type.
+${get_user_number_code}    1010    #Mandroid2 code to get user number.
+${get_user_sn_code}    1006    #Mandroid2 code to get user sn.
+${place_voice_call_code}    3010    #Mandroid2 code to place a voice call.
+${receive_voice_call_code}    3011    #Mandroid2 code to answer a voice call.
+${end_voice_call_code}    3012    #Mandroid2 code to end a voice call.
+${perform_web_browsing_code}    3030    #Mandroid2 code to perform web browsing.
+${send_sms_code}    3001    #Mandroid2 code to send a SMS.
+${read_received_sms_code}    3002    #Mandroid2 code to read SMS.
+${switch_screen_on_code}    1031    #Mandroid2 code to switch on screen.
+${switch_screen_off_code}    1032    #Mandroid2 code to switch off screen.
+${sftp_download_code}    3050    #Mandroid2 code to sftp downloading.
+${sftp_upload_code}    3051    #Mandroid2 code to sftp uploading.
+
+
+*** Keywords ***
+switchAirplaneMode
+    [Arguments]    ${handsetId}    ${airplane_mode}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${switch_airplane_mode_code} airplane_mode_switch ${airplane_mode}    #Run Mandroid2 command to switch on the airplane mode.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+attachHandset
+    [Arguments]    ${handsetId}
+    switchAirplaneMode    handsetId= ${handsetId}    airplane_mode=1    #Turn on the airplane mode.
+    Sleep    2    #Set waiting time.
+    switchAirplaneMode    handsetId= ${handsetId}    airplane_mode=0    #Turn off the airplane mode.
+    Sleep    5    #Set waiting time.
+
+checkCurrentAPN
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_current_apn_code}    #Run Mandroid2 command to get on current APN.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+    ${current_apn}=    Set Variable    ${data['APN']}    #Get current APN from the formatted python dictionary.
+    ${current_apn_name}=    Set Variable    ${data['Name']}    #Get current APN name from the formatted python dictionary.
+    [Return]    ${current_apn}    ${current_apn_name}    #Return the current APN and APN name.
+
+addAndSelectAPN
+    [Arguments]    ${handsetId}    ${apnName}    ${apn}
+    ${apnName}=    Evaluate    '${apnName}'.replace(' ','0')
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${add_and_select_apn_code} edit_apn_type 2 new_apn_name "${apnName}" new_apn "${apn}"
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+checkCurrentNetworkType
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_current_network_type_code}    #Run Mandroid2 command to get current network type.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+    ${current_network_type}    Set Variable If    "${data['networkType']}"=="LTE"    LTE    "${data['networkType']}"=="UMTS"    3G    "${data['networkType']}"=="HSPAP"    3G
+    ...    ELSE    other    #Get current network type from the formatted python dictionary.
+    [Return]    ${current_network_type}    #Return the current network type.
+
+setNetworkType
+    [Arguments]    ${handsetId}    ${network_mode}
+    ${network_mode}    Set Variable If    "${network_mode}"=="LTE"    9    "${network_mode}"=="HSPAP"    2    "${network_mode}"=="UMTS"    2
+    ...    ELSE    0
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${set_network_type_code} network_mode ${network_mode}
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+getUserNumber
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_user_number_code}    #Run Mandroid2 command to get user number.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+    ${user_number}=    Set Variable    ${data['msisdn']}    #Get user number from the formatted python dictionary.
+    [Return]    ${user_number}    #Return the user number.
+
+getUserSN
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${get_user_sn_code}    #Run Mandroid2 command to get user sn.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+    ${user_sn}=    Set Variable    ${data['AndroidId']}    #Get user sn from the formatted python dictionary.
+    [Return]    ${user_sn}    #Return the user sn.
+
+placeBasicVoiceCall
+    [Arguments]    ${handsetId}    ${calledUserNumber}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${place_voice_call_code} call_phonenum ${calledUserNumber}    #Run Mandroid2 command to place a voice call.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+receiveBasicVoiceCall
+    [Arguments]    ${handsetId}    ${callerUserNumber}    ${callDuration}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${receive_voice_call_code} incoming_number ${callerUserNumber} call_duration ${callDuration}    #Run Mandroid2 command to answer a voice call.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+
+endBasicVoiceCall
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${end_voice_call_code}    #Run Mandroid2 command to end a voice call.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+performWebBrowsing
+    [Arguments]    ${handsetId}    ${webUrl}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${perform_web_browsing_code} web_url ${webUrl}    #Run Mandroid2 command to perform a web browsing.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+sendBasicSMS
+    [Arguments]    ${handsetId}    ${receiveUserNumber}    ${smsBody}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${send_sms_code} sms_address ${receiveUserNumber} sms_body ${smsBody}    #Run Mandroid2 command to send a SMS.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+receiveAndReadSMS
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${read_received_sms_code}    #Run Mandroid2 command to read the latest received SMS.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    ${sms_body}=    Set Variable    ${data['smsBody']}    #Get SMS body from the formatted python dictionary.
+    [Return]    ${sms_body}    #Return the SMS body.
+
+3051 sftp_file_path "/sdcard/test_result.csv"  sftp_port 22 sftp_username "root"  sftp_pwd "liu76xt" sftp_server_ip "172.104.175.223"
+performFtpUploading
+    [Arguments]    ${handsetId}    ${webUrl}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${perform_web_browsing_code} web_url ${webUrl}    #Run Mandroid2 command to perform a web browsing.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+unlockScreen
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${switch_screen_on_code}    #Run Mandroid2 command to switch on device screen.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+lockScreen
+    [Arguments]    ${handsetId}
+    ${response}=    Run    java -jar ${jar_file_path} ${handsetId} ${switch_screen_off_code}    #Run Mandroid2 command to switch off device screen.
+    ${data}=    Evaluate    json.loads("""${response}""")    json    #Convert response to a python dictionary.
+    checkMandroidResultIsSuccess    ${data}
+
+checkMandroidResultIsSuccess
+    [Arguments]    ${response}
+    ${is_success}=    Set Variable    ${response['isSuccess']}    #Get Mandroid execution result from the formatted python dictionary.
+    ${description}=    Set Variable    ${response['description']}    #Get error description from the formatted python dictionary.
+    Comment    Tear down the using device and abort the execution if any Mandroid command was failed.
+    Run Keyword If    ${is_success}==False    Run Keywords    tearDownUsingDevices    @{device_serial_list}
+    ...    AND    Fatal Error    msg=${description}    #Disconnect users and abort the execution.

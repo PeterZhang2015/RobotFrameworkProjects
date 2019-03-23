@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.robotframework.ide.tableditor.activePage./Test3/Temp.txt">
+		<item value="" key="activePage"/>
+	</section>
+	<section name="org.robotframework.ide.tableditor.activePage./TestWithMandroid2OnMCloud/EntireTest.txt">
+		<item value="" key="activePage"/>
+	</section>
+	<section name="org.robotframework.ide.tableditor.activePage./TestWithMandroid2OnMCloud/WebBrowsing.txt">
+		<item value="" key="activePage"/>
+	</section>
+	<section name="org.robotframework.ide.tableditor.activePage./Resources/MAndroid2Resources.txt">
+		<item value="" key="activePage"/>
+	</section>
+	<section name="org.robotframework.ide.tableditor.activePage./TestWithMandroid2OnMCloud/SMS.txt">
+		<item value="" key="activePage"/>
+	</section>
+	<section name="org.robotframework.red.search.page">
+		<item value="false" key="caseSensitive"/>
+		<item value="NO_LIMITS" key="searchLimit"/>
+		<item value="KEYWORD" key="searchFor"/>
+		<list key="patterns">
+			<item value="fail"/>
+		</list>
+		<list key="searchTarget">
+			<item value="SUITE"/>
+			<item value="RESOURCE"/>
+			<item value="STANDARD_LIBRARY"/>
+			<item value="REFERENCED_LIBRARY"/>
+		</list>
+	</section>
+</section>

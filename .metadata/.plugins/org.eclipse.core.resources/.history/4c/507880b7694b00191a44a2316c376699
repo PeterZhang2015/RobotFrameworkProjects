@@ -1,0 +1,22 @@
+*** Settings ***
+Test Teardown     Run Keyword If Test Failed    tearDown
+
+*** Variables ***
+${test}           https://google.com.au
+${}
+&{test1}
+*** Test Cases ***
+Temp
+
+    ${value}=    Set Variable    0
+    log    "beginning"    level=WARN
+    ${value}=    Set Variable    1
+    log    "beginning info"
+    ${value}=    Set Variable    2
+    ${data}=    Run Keyword And Continue On Failure    Evaluate    json.loads("""${test}""")    json
+    log    "End of the test"
+
+*** Keywords ***
+tearDown
+    ${temp}=    Set Variable    3
+    log    "tear down process"

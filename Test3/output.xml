@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generated="20190321 11:17:06.106" generator="Robot 3.0.2 (Python 2.7.12 on win32)">
+<suite source="C:\Work\Projects\RobotFrameworkProjects\Test3" id="s1" name="Test3">
+<suite source="C:\Work\Projects\RobotFrameworkProjects\Test3\Temp.txt" id="s1-s1" name="Temp">
+<test id="s1-s1-t1" name="Temp">
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>{"favorited": "false", "contributors": "null"}</arg>
+</arguments>
+<assign>
+<var>${json_string}</var>
+</assign>
+<msg timestamp="20190321 11:17:06.192" level="INFO">${json_string} = {"favorited": "false", "contributors": "null"}</msg>
+<status status="PASS" endtime="20190321 11:17:06.193" starttime="20190321 11:17:06.191"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${json_string}</arg>
+</arguments>
+<msg timestamp="20190321 11:17:06.194" level="INFO">{"favorited": "false", "contributors": "null"}</msg>
+<status status="PASS" endtime="20190321 11:17:06.195" starttime="20190321 11:17:06.193"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>0</arg>
+</arguments>
+<assign>
+<var>${value}</var>
+</assign>
+<msg timestamp="20190321 11:17:06.196" level="INFO">${value} = 0</msg>
+<status status="PASS" endtime="20190321 11:17:06.196" starttime="20190321 11:17:06.195"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>"beginning"</arg>
+<arg>level=WARN</arg>
+</arguments>
+<msg timestamp="20190321 11:17:06.197" level="WARN">"beginning"</msg>
+<status status="PASS" endtime="20190321 11:17:06.198" starttime="20190321 11:17:06.197"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>1</arg>
+</arguments>
+<assign>
+<var>${value}</var>
+</assign>
+<msg timestamp="20190321 11:17:06.199" level="INFO">${value} = 1</msg>
+<status status="PASS" endtime="20190321 11:17:06.199" starttime="20190321 11:17:06.198"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>"beginning info"</arg>
+</arguments>
+<msg timestamp="20190321 11:17:06.200" level="INFO">"beginning info"</msg>
+<status status="PASS" endtime="20190321 11:17:06.201" starttime="20190321 11:17:06.200"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>2</arg>
+</arguments>
+<assign>
+<var>${value}</var>
+</assign>
+<msg timestamp="20190321 11:17:06.202" level="INFO">${value} = 2</msg>
+<status status="PASS" endtime="20190321 11:17:06.202" starttime="20190321 11:17:06.201"></status>
+</kw>
+<kw name="Run Keyword And Continue On Failure" library="BuiltIn">
+<doc>Runs the keyword and continues execution even if a failure occurs.</doc>
+<arguments>
+<arg>Evaluate</arg>
+<arg>json.loads("${json_string}")</arg>
+<arg>json</arg>
+</arguments>
+<assign>
+<var>${data}</var>
+</assign>
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>json.loads("${json_string}")</arg>
+<arg>json</arg>
+</arguments>
+<msg timestamp="20190321 11:17:06.204" level="FAIL">Evaluating expression 'json.loads("{"favorited": "false", "contributors": "null"}")' failed: SyntaxError: invalid syntax (&lt;string&gt;, line 1)</msg>
+<status status="FAIL" endtime="20190321 11:17:06.204" starttime="20190321 11:17:06.203"></status>
+</kw>
+<msg timestamp="20190321 11:17:06.205" level="INFO">${data} = None</msg>
+<status status="FAIL" endtime="20190321 11:17:06.205" starttime="20190321 11:17:06.203"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>"End of the test"</arg>
+</arguments>
+<msg timestamp="20190321 11:17:06.206" level="INFO">"End of the test"</msg>
+<status status="PASS" endtime="20190321 11:17:06.206" starttime="20190321 11:17:06.205"></status>
+</kw>
+<kw type="teardown" name="Run Keyword If Test Failed" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<arguments>
+<arg>tearDown</arg>
+</arguments>
+<kw name="tearDown">
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>3</arg>
+</arguments>
+<assign>
+<var>${temp}</var>
+</assign>
+<msg timestamp="20190321 11:17:06.210" level="INFO">${temp} = 3</msg>
+<status status="PASS" endtime="20190321 11:17:06.210" starttime="20190321 11:17:06.209"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>"tear down process"</arg>
+</arguments>
+<msg timestamp="20190321 11:17:06.212" level="INFO">"tear down process"</msg>
+<status status="PASS" endtime="20190321 11:17:06.212" starttime="20190321 11:17:06.211"></status>
+</kw>
+<status status="PASS" endtime="20190321 11:17:06.213" starttime="20190321 11:17:06.208"></status>
+</kw>
+<status status="PASS" endtime="20190321 11:17:06.213" starttime="20190321 11:17:06.207"></status>
+</kw>
+<status status="FAIL" endtime="20190321 11:17:06.214" critical="yes" starttime="20190321 11:17:06.190">Evaluating expression 'json.loads("{"favorited": "false", "contributors": "null"}")' failed: SyntaxError: invalid syntax (&lt;string&gt;, line 1)</status>
+</test>
+<status status="FAIL" endtime="20190321 11:17:06.215" starttime="20190321 11:17:06.185"></status>
+</suite>
+<status status="FAIL" endtime="20190321 11:17:06.218" starttime="20190321 11:17:06.151"></status>
+</suite>
+<statistics>
+<total>
+<stat fail="1" pass="0">Critical Tests</stat>
+<stat fail="1" pass="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat fail="1" id="s1" name="Test3" pass="0">Test3</stat>
+<stat fail="1" id="s1-s1" name="Temp" pass="0">Test3.Temp</stat>
+</suite>
+</statistics>
+<errors>
+<msg timestamp="20190321 11:17:06.197" level="WARN">"beginning"</msg>
+</errors>
+</robot>

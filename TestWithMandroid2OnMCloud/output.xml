@@ -1,0 +1,1354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generated="20190321 16:23:51.233" generator="Robot 3.0.2 (Python 2.7.12 on win32)">
+<suite source="C:\Work\Projects\RobotFrameworkProjects\TestWithMandroid2OnMCloud" id="s1" name="TestWithMandroid2OnMCloud">
+<suite source="C:\Work\Projects\RobotFrameworkProjects\TestWithMandroid2OnMCloud\EntireTest.txt" id="s1-s1" name="EntireTest">
+<test id="s1-s1-t1" name="FTP">
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Connect the caller device and called device on mcloud.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.044" starttime="20190321 16:23:52.042"></status>
+</kw>
+<kw name="connectToMcloudUser">
+<arguments>
+<arg>${caller_imsi}</arg>
+</arguments>
+<assign>
+<var>${caller_handset_id}</var>
+</assign>
+<kw name="getDeviceSerialByImsi" library="MCloudResources">
+<arguments>
+<arg>${userIMSI}</arg>
+</arguments>
+<assign>
+<var>${device_serial}</var>
+</assign>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${EMPTY}</arg>
+</arguments>
+<assign>
+<var>${device_serial}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.048" level="INFO">${device_serial} = </msg>
+<status status="PASS" endtime="20190321 16:23:52.051" starttime="20190321 16:23:52.047"></status>
+</kw>
+<kw name="Create Dictionary" library="BuiltIn">
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<arguments>
+<arg>Authorization=${mcloud_token}</arg>
+</arguments>
+<assign>
+<var>${headers}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.053" level="INFO">${headers} = {u'Authorization': u'Bearer 6fc22b08ce00468fa56cc53a22384012e16d1ac9ab12403abeaaa5e14496239e'}</msg>
+<status status="PASS" endtime="20190321 16:23:52.053" starttime="20190321 16:23:52.051"></status>
+</kw>
+<kw name="Get" library="REST">
+<tags>
+<tag>http</tag>
+</tags>
+<doc>*Sends a GET request to the endpoint.*</doc>
+<arguments>
+<arg>/devices</arg>
+<arg>headers=${headers}</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.508" starttime="20190321 16:23:52.054"></status>
+</kw>
+<kw name="Object" library="REST">
+<tags>
+<tag>assertions</tag>
+</tags>
+<doc>*Asserts the field as JSON object.*</doc>
+<arguments>
+<arg>response body</arg>
+</arguments>
+<assign>
+<var>${body}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.574" level="INFO">${body} = [{u'devices': [{u'status': 3, u'usageChangedAt': u'2019-02-26T05:16:06.723Z', u'reverseForwards': [], u'battery': {u'status': u'charging', u'scale': 100, u'temp': 26.7, u'level': 73, u'source': u'usb'...</msg>
+<status status="PASS" endtime="20190321 16:23:52.575" starttime="20190321 16:23:52.509"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${body[0]['devices']}</arg>
+</arguments>
+<assign>
+<var>@{devices_list}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.584" level="INFO">@{devices_list} = [ {u'status': 3, u'usageChangedAt': u'2019-02-26T05:16:06.723Z', u'reverseForwards': [], u'battery': {u'status': u'charging', u'scale': 100, u'temp': 26.7, u'level': 73, u'source': u'usb', u'health': ...</msg>
+<status status="PASS" endtime="20190321 16:23:52.584" starttime="20190321 16:23:52.580"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>"len(@{devices_list})"=="0"</arg>
+<arg>Fatal Error</arg>
+<arg>msg="There is not handset connected to the mcloud."</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.588" starttime="20190321 16:23:52.585"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Loop to check the device that can be matched with the testing user IMSI.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.589" starttime="20190321 16:23:52.589"></status>
+</kw>
+<kw type="for" name="${device} IN [ @{devices_list} ]">
+<kw type="foritem" name="${device} = {u'status': 3, u'usageChangedAt': u'2019-02-26T05:16:06.723Z', u'reverseForwards': [], u'battery': {u'status': u'charging', u'scale': 100, u'temp': 26.7, u'level': 73, u'source': u'usb', u'health': u'...">
+<kw name="Continue For Loop If" library="BuiltIn">
+<doc>Skips the current for loop iteration if the ``condition`` is true.</doc>
+<arguments>
+<arg>"${device['present']}"!="True"</arg>
+</arguments>
+<msg timestamp="20190321 16:23:52.593" level="INFO">Continuing for loop from the next iteration.</msg>
+<status status="PASS" endtime="20190321 16:23:52.594" starttime="20190321 16:23:52.591"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:23:52.595" starttime="20190321 16:23:52.590"></status>
+</kw>
+<kw type="foritem" name="${device} = {u'status': 3, u'usageChangedAt': u'2019-03-21T05:14:47.917Z', u'reverseForwards': [], u'battery': {u'status': u'full', u'scale': 100, u'temp': 24.3, u'level': 100, u'source': u'usb', u'health': u'goo...">
+<kw name="Continue For Loop If" library="BuiltIn">
+<doc>Skips the current for loop iteration if the ``condition`` is true.</doc>
+<arguments>
+<arg>"${device['present']}"!="True"</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.601" starttime="20190321 16:23:52.598"></status>
+</kw>
+<kw name="Continue For Loop If" library="BuiltIn">
+<doc>Skips the current for loop iteration if the ``condition`` is true.</doc>
+<arguments>
+<arg>"${device['phone']['imsi']}"=="None"</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.603" starttime="20190321 16:23:52.602"></status>
+</kw>
+<kw name="Set Variable If" library="BuiltIn">
+<doc>Sets variable based on the given condition.</doc>
+<arguments>
+<arg>"${device['phone']['imsi']}"=="${userIMSI}"</arg>
+<arg>${device['serial']}</arg>
+</arguments>
+<assign>
+<var>${device_serial}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.606" level="INFO">${device_serial} = None</msg>
+<status status="PASS" endtime="20190321 16:23:52.606" starttime="20190321 16:23:52.604"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>"${device['phone']['imsi']}"=="${userIMSI}"</arg>
+<arg>Exit For Loop</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.609" starttime="20190321 16:23:52.607"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:23:52.610" starttime="20190321 16:23:52.597"></status>
+</kw>
+<kw type="foritem" name="${device} = {u'status': 3, u'usageChangedAt': u'2019-03-21T05:20:40.487Z', u'reverseForwards': [], u'battery': {u'status': u'full', u'scale': 100, u'temp': 24.8, u'level': 100, u'source': u'usb', u'health': u'goo...">
+<kw name="Continue For Loop If" library="BuiltIn">
+<doc>Skips the current for loop iteration if the ``condition`` is true.</doc>
+<arguments>
+<arg>"${device['present']}"!="True"</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.615" starttime="20190321 16:23:52.613"></status>
+</kw>
+<kw name="Continue For Loop If" library="BuiltIn">
+<doc>Skips the current for loop iteration if the ``condition`` is true.</doc>
+<arguments>
+<arg>"${device['phone']['imsi']}"=="None"</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.620" starttime="20190321 16:23:52.616"></status>
+</kw>
+<kw name="Set Variable If" library="BuiltIn">
+<doc>Sets variable based on the given condition.</doc>
+<arguments>
+<arg>"${device['phone']['imsi']}"=="${userIMSI}"</arg>
+<arg>${device['serial']}</arg>
+</arguments>
+<assign>
+<var>${device_serial}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.624" level="INFO">${device_serial} = 25cb81cc6f0d7ece</msg>
+<status status="PASS" endtime="20190321 16:23:52.624" starttime="20190321 16:23:52.622"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>"${device['phone']['imsi']}"=="${userIMSI}"</arg>
+<arg>Exit For Loop</arg>
+</arguments>
+<kw name="Exit For Loop" library="BuiltIn">
+<doc>Stops executing the enclosing for loop.</doc>
+<msg timestamp="20190321 16:23:52.630" level="INFO">Exiting for loop altogether.</msg>
+<status status="PASS" endtime="20190321 16:23:52.631" starttime="20190321 16:23:52.628"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:23:52.632" starttime="20190321 16:23:52.625"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:23:52.634" starttime="20190321 16:23:52.611"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:23:52.635" starttime="20190321 16:23:52.590"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Check that whether the device has been occupied by someone else.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.637" starttime="20190321 16:23:52.636"></status>
+</kw>
+<kw name="Set Variable If" library="BuiltIn">
+<doc>Sets variable based on the given condition.</doc>
+<arguments>
+<arg>"${device['owner']}"!="None"</arg>
+<arg>${device['owner']['email']}</arg>
+<arg>"None"</arg>
+</arguments>
+<assign>
+<var>${current_device_owner_email}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.639" level="INFO">${current_device_owner_email} = "None"</msg>
+<status status="PASS" endtime="20190321 16:23:52.640" starttime="20190321 16:23:52.637"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>"${device['owner']}"=="None"</arg>
+<arg>log</arg>
+<arg>"Handset with IMSI ${userIMSI} has not been occupied."</arg>
+<arg>ELSE IF</arg>
+<arg>"${current_device_owner_email}"=="${mcloud_login_user_email}"</arg>
+<arg>Run Keywords</arg>
+<arg>releaseDevice</arg>
+<arg>${device_serial}</arg>
+<arg>AND</arg>
+<arg>log</arg>
+<arg>"Handset with IMSI ${userIMSI} has been occupied by myself ${mcloud_login_user_email}."</arg>
+<arg>ELSE</arg>
+<arg>Fatal Error</arg>
+<arg>msg="Handset with IMSI ${userIMSI} has been occupied by mcloud user ${device['owner']['email']}."</arg>
+</arguments>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>"Handset with IMSI ${userIMSI} has not been occupied."</arg>
+</arguments>
+<msg timestamp="20190321 16:23:52.651" level="INFO">"Handset with IMSI 505025504563848 has not been occupied."</msg>
+<status status="PASS" endtime="20190321 16:23:52.651" starttime="20190321 16:23:52.649"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:23:52.652" starttime="20190321 16:23:52.641"></status>
+</kw>
+<msg timestamp="20190321 16:23:52.653" level="INFO">${device_serial} = 25cb81cc6f0d7ece</msg>
+<status status="PASS" endtime="20190321 16:23:52.654" starttime="20190321 16:23:52.046"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>"${device_serial}"=="${EMPTY}"</arg>
+<arg>Fatal Error</arg>
+<arg>msg="Cannot find the matched IMSI ${userIMSI} on mcloud"</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.656" starttime="20190321 16:23:52.655"></status>
+</kw>
+<kw name="requestDevice" library="MCloudResources">
+<arguments>
+<arg>${device_serial}</arg>
+</arguments>
+<kw name="Create Dictionary" library="BuiltIn">
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<arguments>
+<arg>Authorization=${mcloud_token}</arg>
+</arguments>
+<assign>
+<var>${headers}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.662" level="INFO">${headers} = {u'Authorization': u'Bearer 6fc22b08ce00468fa56cc53a22384012e16d1ac9ab12403abeaaa5e14496239e'}</msg>
+<status status="PASS" endtime="20190321 16:23:52.663" starttime="20190321 16:23:52.658"></status>
+</kw>
+<kw name="Create Dictionary" library="BuiltIn">
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<arguments>
+<arg>serial=${deviceSerial}</arg>
+</arguments>
+<assign>
+<var>${data}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.667" level="INFO">${data} = {u'serial': u'25cb81cc6f0d7ece'}</msg>
+<status status="PASS" endtime="20190321 16:23:52.668" starttime="20190321 16:23:52.665"></status>
+</kw>
+<kw name="Post" library="REST">
+<tags>
+<tag>http</tag>
+</tags>
+<doc>*Sends a POST request to the endpoint.*</doc>
+<arguments>
+<arg>/user/devices</arg>
+<arg>headers=${headers}</arg>
+<arg>body=${data}</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.869" starttime="20190321 16:23:52.668"></status>
+</kw>
+<kw name="Object" library="REST">
+<tags>
+<tag>assertions</tag>
+</tags>
+<doc>*Asserts the field as JSON object.*</doc>
+<arguments>
+<arg>response body</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.874" level="INFO">${response} = [{u'description': u'Device successfully added', u'success': True}]</msg>
+<status status="PASS" endtime="20190321 16:23:52.874" starttime="20190321 16:23:52.870"></status>
+</kw>
+<kw name="Append To List" library="Collections">
+<doc>Adds ``values`` to the end of ``list``.</doc>
+<arguments>
+<arg>${device_serial_list}</arg>
+<arg>${deviceSerial}</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:52.876" starttime="20190321 16:23:52.875"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:23:52.877" starttime="20190321 16:23:52.657"></status>
+</kw>
+<kw name="remoteConnect" library="MCloudResources">
+<arguments>
+<arg>${device_serial}</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<kw name="Create Dictionary" library="BuiltIn">
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<arguments>
+<arg>Authorization=${mcloud_token}</arg>
+</arguments>
+<assign>
+<var>${headers}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.881" level="INFO">${headers} = {u'Authorization': u'Bearer 6fc22b08ce00468fa56cc53a22384012e16d1ac9ab12403abeaaa5e14496239e'}</msg>
+<status status="PASS" endtime="20190321 16:23:52.882" starttime="20190321 16:23:52.879"></status>
+</kw>
+<kw name="Create Dictionary" library="BuiltIn">
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<arguments>
+<arg>serial=${deviceSerial}</arg>
+</arguments>
+<assign>
+<var>${data}</var>
+</assign>
+<msg timestamp="20190321 16:23:52.884" level="INFO">${data} = {u'serial': u'25cb81cc6f0d7ece'}</msg>
+<status status="PASS" endtime="20190321 16:23:52.884" starttime="20190321 16:23:52.882"></status>
+</kw>
+<kw name="Post" library="REST">
+<tags>
+<tag>http</tag>
+</tags>
+<doc>*Sends a POST request to the endpoint.*</doc>
+<arguments>
+<arg>/user/devices/${deviceSerial}/remoteConnect</arg>
+<arg>headers=${headers}</arg>
+<arg>body=${data}</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:53.034" starttime="20190321 16:23:52.884"></status>
+</kw>
+<kw name="Object" library="REST">
+<tags>
+<tag>assertions</tag>
+</tags>
+<doc>*Asserts the field as JSON object.*</doc>
+<arguments>
+<arg>response body</arg>
+</arguments>
+<assign>
+<var>${body}</var>
+</assign>
+<msg timestamp="20190321 16:23:53.037" level="INFO">${body} = [{u'success': True, u'remoteConnectUrl': u'mcloud.matrium.com.au:7433'}]</msg>
+<status status="PASS" endtime="20190321 16:23:53.037" starttime="20190321 16:23:53.035"></status>
+</kw>
+<msg timestamp="20190321 16:23:53.038" level="INFO">${response} = {u'success': True, u'remoteConnectUrl': u'mcloud.matrium.com.au:7433'}</msg>
+<status status="PASS" endtime="20190321 16:23:53.039" starttime="20190321 16:23:52.877"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Abort the execution if it cannot get the remote control url of the testing device.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:53.040" starttime="20190321 16:23:53.039"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>"${response['success']}"!="True"</arg>
+<arg>Fatal Error</arg>
+<arg>msg="Fail to remoteConnect ${userIMSI} on mcloud"</arg>
+<arg>ELSE</arg>
+<arg>log</arg>
+<arg>connect ${userIMSI} on mcloud successfully</arg>
+</arguments>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>connect ${userIMSI} on mcloud successfully</arg>
+</arguments>
+<msg timestamp="20190321 16:23:53.042" level="INFO">connect 505025504563848 on mcloud successfully</msg>
+<status status="PASS" endtime="20190321 16:23:53.043" starttime="20190321 16:23:53.042"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:23:53.043" starttime="20190321 16:23:53.041"></status>
+</kw>
+<kw name="Run" library="OperatingSystem">
+<doc>Runs the given command in the system and returns the output.</doc>
+<arguments>
+<arg>adb connect ${response['remoteConnectUrl']}</arg>
+</arguments>
+<assign>
+<var>${cmd_response}</var>
+</assign>
+<msg timestamp="20190321 16:23:53.050" level="INFO">Running command 'adb connect mcloud.matrium.com.au:7433 2&gt;&amp;1'.</msg>
+<msg timestamp="20190321 16:23:53.221" level="INFO">${cmd_response} = connected to mcloud.matrium.com.au:7433</msg>
+<status status="PASS" endtime="20190321 16:23:53.221" starttime="20190321 16:23:53.044"></status>
+</kw>
+<msg timestamp="20190321 16:23:53.222" level="INFO">${caller_handset_id} = mcloud.matrium.com.au:7433</msg>
+<status status="PASS" endtime="20190321 16:23:53.223" starttime="20190321 16:23:52.045"></status>
+</kw>
+<kw name="Sleep" library="BuiltIn">
+<doc>Pauses the test executed for the given time.</doc>
+<arguments>
+<arg>5</arg>
+</arguments>
+<msg timestamp="20190321 16:23:58.225" level="INFO">Slept 5 seconds</msg>
+<status status="PASS" endtime="20190321 16:23:58.225" starttime="20190321 16:23:53.224"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Get the user number of the caller user and called user on mcloud.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:23:58.226" starttime="20190321 16:23:58.225"></status>
+</kw>
+<kw name="getUserNumber" library="MAndroid2Resources">
+<arguments>
+<arg>${caller_handset_id}</arg>
+</arguments>
+<assign>
+<var>${caller_user_number}</var>
+</assign>
+<kw name="Run" library="OperatingSystem">
+<doc>Runs the given command in the system and returns the output.</doc>
+<arguments>
+<arg>java -jar ${jar_file_path} ${handsetId} ${get_user_number_code}</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:23:58.231" level="INFO">Running command 'java -jar C:\Work\Mandroid2\MatriumMAndroid2-release.jar mcloud.matrium.com.au:7433 1010 2&gt;&amp;1'.</msg>
+<msg timestamp="20190321 16:24:00.273" level="INFO">${response} = {"isSuccess":true,"startTime":1553145712276,"msisdn":"+61431202671","description":"Get msisdn successfully"}</msg>
+<status status="PASS" endtime="20190321 16:24:00.274" starttime="20190321 16:23:58.227"></status>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>json.loads("""${response}""")</arg>
+<arg>json</arg>
+</arguments>
+<assign>
+<var>${data}</var>
+</assign>
+<msg timestamp="20190321 16:24:00.276" level="INFO">${data} = {u'isSuccess': True, u'msisdn': u'+61431202671', u'description': u'Get msisdn successfully', u'startTime': 1553145712276L}</msg>
+<status status="PASS" endtime="20190321 16:24:00.276" starttime="20190321 16:24:00.274"></status>
+</kw>
+<kw name="checkMandroidResultIsSuccess" library="MAndroid2Resources">
+<arguments>
+<arg>${data}</arg>
+</arguments>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['isSuccess']}</arg>
+</arguments>
+<assign>
+<var>${is_success}</var>
+</assign>
+<msg timestamp="20190321 16:24:00.278" level="INFO">${is_success} = True</msg>
+<status status="PASS" endtime="20190321 16:24:00.279" starttime="20190321 16:24:00.277"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['description']}</arg>
+</arguments>
+<assign>
+<var>${description}</var>
+</assign>
+<msg timestamp="20190321 16:24:00.280" level="INFO">${description} = Get msisdn successfully</msg>
+<status status="PASS" endtime="20190321 16:24:00.280" starttime="20190321 16:24:00.279"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Tear down the using device and abort the execution if any Mandroid command was failed.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:00.281" starttime="20190321 16:24:00.280"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>${is_success}==False</arg>
+<arg>Run Keywords</arg>
+<arg>tearDownUsingDevices</arg>
+<arg>@{device_serial_list}</arg>
+<arg>AND</arg>
+<arg>Fatal Error</arg>
+<arg>msg=${description}</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:00.282" starttime="20190321 16:24:00.281"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:00.283" starttime="20190321 16:24:00.276"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${data['msisdn']}</arg>
+</arguments>
+<assign>
+<var>${user_number}</var>
+</assign>
+<msg timestamp="20190321 16:24:00.284" level="INFO">${user_number} = +61431202671</msg>
+<status status="PASS" endtime="20190321 16:24:00.284" starttime="20190321 16:24:00.283"></status>
+</kw>
+<msg timestamp="20190321 16:24:00.285" level="INFO">${caller_user_number} = +61431202671</msg>
+<status status="PASS" endtime="20190321 16:24:00.285" starttime="20190321 16:23:58.226"></status>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>'${caller_user_number}'.replace('+61','0')</arg>
+</arguments>
+<assign>
+<var>${caller_user_number}</var>
+</assign>
+<msg timestamp="20190321 16:24:00.287" level="INFO">${caller_user_number} = 0431202671</msg>
+<status status="PASS" endtime="20190321 16:24:00.287" starttime="20190321 16:24:00.286"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Starting to check whether it needs to switch APN for caller user.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:00.288" starttime="20190321 16:24:00.288"></status>
+</kw>
+<kw name="checkCurrentAPN" library="MAndroid2Resources">
+<arguments>
+<arg>${caller_handset_id}</arg>
+</arguments>
+<assign>
+<var>${current_caller_apn}</var>
+<var>${current_caller_apn_name}</var>
+</assign>
+<kw name="Run" library="OperatingSystem">
+<doc>Runs the given command in the system and returns the output.</doc>
+<arguments>
+<arg>java -jar ${jar_file_path} ${handsetId} ${get_current_apn_code}</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:24:00.294" level="INFO">Running command 'java -jar C:\Work\Mandroid2\MatriumMAndroid2-release.jar mcloud.matrium.com.au:7433 2010 2&gt;&amp;1'.</msg>
+<msg timestamp="20190321 16:24:02.097" level="INFO">${response} = {"isSuccess":true,"startTime":1553145714217,"Name":"Optus Yes Internet","APN":"yesinternet","Proxy":"","Port":"","Username":"","Password":"","Server":"","MMSC":"","MMSProxy":"","MMSPort":"","MCC":"505...</msg>
+<status status="PASS" endtime="20190321 16:24:02.097" starttime="20190321 16:24:00.290"></status>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>json.loads("""${response}""")</arg>
+<arg>json</arg>
+</arguments>
+<assign>
+<var>${data}</var>
+</assign>
+<msg timestamp="20190321 16:24:02.098" level="INFO">${data} = {u'APNType': u'default,dun,supl,email', u'EnableAPN': u'0', u'AuthentificationType': u'1', u'APNProtocol': u'IP', u'description': u'Get current APN name successfully', u'Username': u'', u'MobileVirtua...</msg>
+<status status="PASS" endtime="20190321 16:24:02.099" starttime="20190321 16:24:02.097"></status>
+</kw>
+<kw name="checkMandroidResultIsSuccess" library="MAndroid2Resources">
+<arguments>
+<arg>${data}</arg>
+</arguments>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['isSuccess']}</arg>
+</arguments>
+<assign>
+<var>${is_success}</var>
+</assign>
+<msg timestamp="20190321 16:24:02.101" level="INFO">${is_success} = True</msg>
+<status status="PASS" endtime="20190321 16:24:02.101" starttime="20190321 16:24:02.100"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['description']}</arg>
+</arguments>
+<assign>
+<var>${description}</var>
+</assign>
+<msg timestamp="20190321 16:24:02.102" level="INFO">${description} = Get current APN name successfully</msg>
+<status status="PASS" endtime="20190321 16:24:02.102" starttime="20190321 16:24:02.101"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Tear down the using device and abort the execution if any Mandroid command was failed.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:02.103" starttime="20190321 16:24:02.103"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>${is_success}==False</arg>
+<arg>Run Keywords</arg>
+<arg>tearDownUsingDevices</arg>
+<arg>@{device_serial_list}</arg>
+<arg>AND</arg>
+<arg>Fatal Error</arg>
+<arg>msg=${description}</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:02.104" starttime="20190321 16:24:02.104"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:02.105" starttime="20190321 16:24:02.099"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${data['APN']}</arg>
+</arguments>
+<assign>
+<var>${current_apn}</var>
+</assign>
+<msg timestamp="20190321 16:24:02.106" level="INFO">${current_apn} = yesinternet</msg>
+<status status="PASS" endtime="20190321 16:24:02.106" starttime="20190321 16:24:02.105"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${data['Name']}</arg>
+</arguments>
+<assign>
+<var>${current_apn_name}</var>
+</assign>
+<msg timestamp="20190321 16:24:02.107" level="INFO">${current_apn_name} = Optus Yes Internet</msg>
+<status status="PASS" endtime="20190321 16:24:02.107" starttime="20190321 16:24:02.107"></status>
+</kw>
+<msg timestamp="20190321 16:24:02.108" level="INFO">${current_caller_apn} = yesinternet</msg>
+<msg timestamp="20190321 16:24:02.108" level="INFO">${current_caller_apn_name} = Optus Yes Internet</msg>
+<status status="PASS" endtime="20190321 16:24:02.108" starttime="20190321 16:24:00.289"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>"${current_caller_apn}"!="${test_caller_apn}" or "${current_caller_apn_name}"!="${test_caller_apn_name}"</arg>
+<arg>addAndSelectAPN</arg>
+<arg>${caller_handset_id}</arg>
+<arg>${test_caller_apn_name}</arg>
+<arg>${test_caller_apn}</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:02.110" starttime="20190321 16:24:02.109"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Starting to check whether it needs to switch network type for caller user.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:02.111" starttime="20190321 16:24:02.110"></status>
+</kw>
+<kw name="attachHandset" library="MAndroid2Resources">
+<arguments>
+<arg>${caller_handset_id}</arg>
+</arguments>
+<kw name="switchAirplaneMode" library="MAndroid2Resources">
+<arguments>
+<arg>handsetId= ${handsetId}</arg>
+<arg>airplane_mode=1</arg>
+</arguments>
+<kw name="Run" library="OperatingSystem">
+<doc>Runs the given command in the system and returns the output.</doc>
+<arguments>
+<arg>java -jar ${jar_file_path} ${handsetId} ${switch_airplane_mode_code} airplane_mode_switch ${airplane_mode}</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:24:02.116" level="INFO">Running command 'java -jar C:\Work\Mandroid2\MatriumMAndroid2-release.jar  mcloud.matrium.com.au:7433 2006 airplane_mode_switch 1 2&gt;&amp;1'.</msg>
+<msg timestamp="20190321 16:24:03.991" level="INFO">${response} = {"isSuccess":true,"startTime":1553145716146,"description":"Turn on successfully!"}</msg>
+<status status="PASS" endtime="20190321 16:24:03.992" starttime="20190321 16:24:02.113"></status>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>json.loads("""${response}""")</arg>
+<arg>json</arg>
+</arguments>
+<assign>
+<var>${data}</var>
+</assign>
+<msg timestamp="20190321 16:24:03.993" level="INFO">${data} = {u'isSuccess': True, u'description': u'Turn on successfully!', u'startTime': 1553145716146L}</msg>
+<status status="PASS" endtime="20190321 16:24:03.994" starttime="20190321 16:24:03.992"></status>
+</kw>
+<kw name="checkMandroidResultIsSuccess" library="MAndroid2Resources">
+<arguments>
+<arg>${data}</arg>
+</arguments>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['isSuccess']}</arg>
+</arguments>
+<assign>
+<var>${is_success}</var>
+</assign>
+<msg timestamp="20190321 16:24:03.995" level="INFO">${is_success} = True</msg>
+<status status="PASS" endtime="20190321 16:24:03.996" starttime="20190321 16:24:03.995"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['description']}</arg>
+</arguments>
+<assign>
+<var>${description}</var>
+</assign>
+<msg timestamp="20190321 16:24:03.997" level="INFO">${description} = Turn on successfully!</msg>
+<status status="PASS" endtime="20190321 16:24:03.997" starttime="20190321 16:24:03.996"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Tear down the using device and abort the execution if any Mandroid command was failed.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:03.999" starttime="20190321 16:24:03.998"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>${is_success}==False</arg>
+<arg>Run Keywords</arg>
+<arg>tearDownUsingDevices</arg>
+<arg>@{device_serial_list}</arg>
+<arg>AND</arg>
+<arg>Fatal Error</arg>
+<arg>msg=${description}</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:04.000" starttime="20190321 16:24:03.999"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:04.000" starttime="20190321 16:24:03.994"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:04.000" starttime="20190321 16:24:02.112"></status>
+</kw>
+<kw name="Sleep" library="BuiltIn">
+<doc>Pauses the test executed for the given time.</doc>
+<arguments>
+<arg>2</arg>
+</arguments>
+<msg timestamp="20190321 16:24:06.002" level="INFO">Slept 2 seconds</msg>
+<status status="PASS" endtime="20190321 16:24:06.002" starttime="20190321 16:24:04.001"></status>
+</kw>
+<kw name="switchAirplaneMode" library="MAndroid2Resources">
+<arguments>
+<arg>handsetId= ${handsetId}</arg>
+<arg>airplane_mode=0</arg>
+</arguments>
+<kw name="Run" library="OperatingSystem">
+<doc>Runs the given command in the system and returns the output.</doc>
+<arguments>
+<arg>java -jar ${jar_file_path} ${handsetId} ${switch_airplane_mode_code} airplane_mode_switch ${airplane_mode}</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:24:06.010" level="INFO">Running command 'java -jar C:\Work\Mandroid2\MatriumMAndroid2-release.jar  mcloud.matrium.com.au:7433 2006 airplane_mode_switch 0 2&gt;&amp;1'.</msg>
+<msg timestamp="20190321 16:24:08.071" level="INFO">${response} = {"isSuccess":true,"startTime":1553145719870,"description":"Turn off successfully!"}</msg>
+<status status="PASS" endtime="20190321 16:24:08.072" starttime="20190321 16:24:06.005"></status>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>json.loads("""${response}""")</arg>
+<arg>json</arg>
+</arguments>
+<assign>
+<var>${data}</var>
+</assign>
+<msg timestamp="20190321 16:24:08.073" level="INFO">${data} = {u'isSuccess': True, u'description': u'Turn off successfully!', u'startTime': 1553145719870L}</msg>
+<status status="PASS" endtime="20190321 16:24:08.074" starttime="20190321 16:24:08.072"></status>
+</kw>
+<kw name="checkMandroidResultIsSuccess" library="MAndroid2Resources">
+<arguments>
+<arg>${data}</arg>
+</arguments>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['isSuccess']}</arg>
+</arguments>
+<assign>
+<var>${is_success}</var>
+</assign>
+<msg timestamp="20190321 16:24:08.075" level="INFO">${is_success} = True</msg>
+<status status="PASS" endtime="20190321 16:24:08.075" starttime="20190321 16:24:08.074"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['description']}</arg>
+</arguments>
+<assign>
+<var>${description}</var>
+</assign>
+<msg timestamp="20190321 16:24:08.076" level="INFO">${description} = Turn off successfully!</msg>
+<status status="PASS" endtime="20190321 16:24:08.076" starttime="20190321 16:24:08.076"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Tear down the using device and abort the execution if any Mandroid command was failed.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:08.077" starttime="20190321 16:24:08.077"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>${is_success}==False</arg>
+<arg>Run Keywords</arg>
+<arg>tearDownUsingDevices</arg>
+<arg>@{device_serial_list}</arg>
+<arg>AND</arg>
+<arg>Fatal Error</arg>
+<arg>msg=${description}</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:08.092" starttime="20190321 16:24:08.077"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:08.093" starttime="20190321 16:24:08.074"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:08.093" starttime="20190321 16:24:06.003"></status>
+</kw>
+<kw name="Sleep" library="BuiltIn">
+<doc>Pauses the test executed for the given time.</doc>
+<arguments>
+<arg>5</arg>
+</arguments>
+<msg timestamp="20190321 16:24:13.095" level="INFO">Slept 5 seconds</msg>
+<status status="PASS" endtime="20190321 16:24:13.095" starttime="20190321 16:24:08.093"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:13.096" starttime="20190321 16:24:02.111"></status>
+</kw>
+<kw name="checkCurrentNetworkType" library="MAndroid2Resources">
+<arguments>
+<arg>${caller_handset_id}</arg>
+</arguments>
+<assign>
+<var>${callerCurrentNetworkType}</var>
+</assign>
+<kw name="Run" library="OperatingSystem">
+<doc>Runs the given command in the system and returns the output.</doc>
+<arguments>
+<arg>java -jar ${jar_file_path} ${handsetId} ${get_current_network_type_code}</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:24:13.100" level="INFO">Running command 'java -jar C:\Work\Mandroid2\MatriumMAndroid2-release.jar mcloud.matrium.com.au:7433 1021 2&gt;&amp;1'.</msg>
+<msg timestamp="20190321 16:24:15.150" level="INFO">${response} = {"isSuccess":true,"startTime":1553145727139,"networkType":"LTE","description":"Get network type successfully"}</msg>
+<status status="PASS" endtime="20190321 16:24:15.150" starttime="20190321 16:24:13.097"></status>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>json.loads("""${response}""")</arg>
+<arg>json</arg>
+</arguments>
+<assign>
+<var>${data}</var>
+</assign>
+<msg timestamp="20190321 16:24:15.152" level="INFO">${data} = {u'isSuccess': True, u'networkType': u'LTE', u'description': u'Get network type successfully', u'startTime': 1553145727139L}</msg>
+<status status="PASS" endtime="20190321 16:24:15.153" starttime="20190321 16:24:15.151"></status>
+</kw>
+<kw name="checkMandroidResultIsSuccess" library="MAndroid2Resources">
+<arguments>
+<arg>${data}</arg>
+</arguments>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['isSuccess']}</arg>
+</arguments>
+<assign>
+<var>${is_success}</var>
+</assign>
+<msg timestamp="20190321 16:24:15.155" level="INFO">${is_success} = True</msg>
+<status status="PASS" endtime="20190321 16:24:15.155" starttime="20190321 16:24:15.154"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['description']}</arg>
+</arguments>
+<assign>
+<var>${description}</var>
+</assign>
+<msg timestamp="20190321 16:24:15.157" level="INFO">${description} = Get network type successfully</msg>
+<status status="PASS" endtime="20190321 16:24:15.157" starttime="20190321 16:24:15.156"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Tear down the using device and abort the execution if any Mandroid command was failed.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:15.158" starttime="20190321 16:24:15.158"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>${is_success}==False</arg>
+<arg>Run Keywords</arg>
+<arg>tearDownUsingDevices</arg>
+<arg>@{device_serial_list}</arg>
+<arg>AND</arg>
+<arg>Fatal Error</arg>
+<arg>msg=${description}</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:15.160" starttime="20190321 16:24:15.159"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:15.161" starttime="20190321 16:24:15.153"></status>
+</kw>
+<kw name="Set Variable If" library="BuiltIn">
+<doc>Sets variable based on the given condition.</doc>
+<arguments>
+<arg>"${data['networkType']}"=="LTE"</arg>
+<arg>LTE</arg>
+<arg>"${data['networkType']}"=="UMTS"</arg>
+<arg>3G</arg>
+<arg>"${data['networkType']}"=="HSPAP"</arg>
+<arg>3G</arg>
+<arg>ELSE</arg>
+<arg>other</arg>
+</arguments>
+<assign>
+<var>${current_network_type}</var>
+</assign>
+<msg timestamp="20190321 16:24:15.163" level="INFO">${current_network_type} = LTE</msg>
+<status status="PASS" endtime="20190321 16:24:15.163" starttime="20190321 16:24:15.161"></status>
+</kw>
+<msg timestamp="20190321 16:24:15.164" level="INFO">${callerCurrentNetworkType} = LTE</msg>
+<status status="PASS" endtime="20190321 16:24:15.164" starttime="20190321 16:24:13.096"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>"${callerCurrentNetworkType}: "${callerCurrentNetworkType}</arg>
+</arguments>
+<msg timestamp="20190321 16:24:15.166" level="INFO">"LTE: "LTE</msg>
+<status status="PASS" endtime="20190321 16:24:15.166" starttime="20190321 16:24:15.165"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>"${callerCurrentNetworkType}"!="${test_caller_network_type}"</arg>
+<arg>Run Keywords</arg>
+<arg>setNetworkType</arg>
+<arg>${caller_handset_id}</arg>
+<arg>${test_caller_network_type}</arg>
+<arg>AND</arg>
+<arg>log</arg>
+<arg>Switched to the configured network type "${test_caller_network_type}" for ${caller_handset_id}.</arg>
+<arg>ELSE</arg>
+<arg>log</arg>
+<arg>There is no need to switch the network type for ${caller_handset_id}.</arg>
+</arguments>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>There is no need to switch the network type for ${caller_handset_id}.</arg>
+</arguments>
+<msg timestamp="20190321 16:24:15.169" level="INFO">There is no need to switch the network type for mcloud.matrium.com.au:7433.</msg>
+<status status="PASS" endtime="20190321 16:24:15.169" starttime="20190321 16:24:15.168"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:15.170" starttime="20190321 16:24:15.167"></status>
+</kw>
+<kw name="checkCurrentNetworkType" library="MAndroid2Resources">
+<arguments>
+<arg>${caller_handset_id}</arg>
+</arguments>
+<assign>
+<var>${callerCurrentNetworkType}</var>
+</assign>
+<kw name="Run" library="OperatingSystem">
+<doc>Runs the given command in the system and returns the output.</doc>
+<arguments>
+<arg>java -jar ${jar_file_path} ${handsetId} ${get_current_network_type_code}</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:24:15.187" level="INFO">Running command 'java -jar C:\Work\Mandroid2\MatriumMAndroid2-release.jar mcloud.matrium.com.au:7433 1021 2&gt;&amp;1'.</msg>
+<msg timestamp="20190321 16:24:17.042" level="INFO">${response} = {"isSuccess":true,"startTime":1553145729203,"networkType":"LTE","description":"Get network type successfully"}</msg>
+<status status="PASS" endtime="20190321 16:24:17.042" starttime="20190321 16:24:15.172"></status>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>json.loads("""${response}""")</arg>
+<arg>json</arg>
+</arguments>
+<assign>
+<var>${data}</var>
+</assign>
+<msg timestamp="20190321 16:24:17.044" level="INFO">${data} = {u'isSuccess': True, u'networkType': u'LTE', u'description': u'Get network type successfully', u'startTime': 1553145729203L}</msg>
+<status status="PASS" endtime="20190321 16:24:17.044" starttime="20190321 16:24:17.043"></status>
+</kw>
+<kw name="checkMandroidResultIsSuccess" library="MAndroid2Resources">
+<arguments>
+<arg>${data}</arg>
+</arguments>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['isSuccess']}</arg>
+</arguments>
+<assign>
+<var>${is_success}</var>
+</assign>
+<msg timestamp="20190321 16:24:17.046" level="INFO">${is_success} = True</msg>
+<status status="PASS" endtime="20190321 16:24:17.046" starttime="20190321 16:24:17.045"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['description']}</arg>
+</arguments>
+<assign>
+<var>${description}</var>
+</assign>
+<msg timestamp="20190321 16:24:17.048" level="INFO">${description} = Get network type successfully</msg>
+<status status="PASS" endtime="20190321 16:24:17.048" starttime="20190321 16:24:17.047"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Tear down the using device and abort the execution if any Mandroid command was failed.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:17.049" starttime="20190321 16:24:17.048"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>${is_success}==False</arg>
+<arg>Run Keywords</arg>
+<arg>tearDownUsingDevices</arg>
+<arg>@{device_serial_list}</arg>
+<arg>AND</arg>
+<arg>Fatal Error</arg>
+<arg>msg=${description}</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:17.050" starttime="20190321 16:24:17.049"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:17.050" starttime="20190321 16:24:17.044"></status>
+</kw>
+<kw name="Set Variable If" library="BuiltIn">
+<doc>Sets variable based on the given condition.</doc>
+<arguments>
+<arg>"${data['networkType']}"=="LTE"</arg>
+<arg>LTE</arg>
+<arg>"${data['networkType']}"=="UMTS"</arg>
+<arg>3G</arg>
+<arg>"${data['networkType']}"=="HSPAP"</arg>
+<arg>3G</arg>
+<arg>ELSE</arg>
+<arg>other</arg>
+</arguments>
+<assign>
+<var>${current_network_type}</var>
+</assign>
+<msg timestamp="20190321 16:24:17.052" level="INFO">${current_network_type} = LTE</msg>
+<status status="PASS" endtime="20190321 16:24:17.052" starttime="20190321 16:24:17.051"></status>
+</kw>
+<msg timestamp="20190321 16:24:17.053" level="INFO">${callerCurrentNetworkType} = LTE</msg>
+<status status="PASS" endtime="20190321 16:24:17.053" starttime="20190321 16:24:15.170"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>"${callerCurrentNetworkType}"!="${test_caller_network_type}"</arg>
+<arg>Run Keywords</arg>
+<arg>Fatal Error</arg>
+<arg>msg="Failed to set network type for ${caller_handset_id} "</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:17.054" starttime="20190321 16:24:17.053"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Starting to perform FTP on caller user.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:17.055" starttime="20190321 16:24:17.055"></status>
+</kw>
+<kw name="performSftpUploading" library="MAndroid2Resources">
+<arguments>
+<arg>${caller_handset_id}</arg>
+<arg>${sftp_file_path}</arg>
+<arg>${sftp_port}</arg>
+<arg>${sftp_username}</arg>
+<arg>${sftp_pwd}</arg>
+<arg>${sftp_server_ip}</arg>
+</arguments>
+<kw name="Run" library="OperatingSystem">
+<doc>Runs the given command in the system and returns the output.</doc>
+<arguments>
+<arg>java -jar ${jar_file_path} ${handsetId} ${sftp_upload_code} sftp_file_path ${sftp_file_path} sftp_port ${sftp_port} sftp_username ${sftp_username} sftp_pwd ${sftp_pwd} sftp_server_ip ${sftp_server_ip}</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:24:17.061" level="INFO">Running command 'java -jar C:\Work\Mandroid2\MatriumMAndroid2-release.jar mcloud.matrium.com.au:7433 3051 sftp_file_path /sdcard/screen.png sftp_port 22 sftp_username dlpuser@dlptest.com sftp_pwd VADPRDqid4TaB0r5a2B0n9wLp sftp_server_ip ftp.dlptest.com 2&gt;&amp;1'.</msg>
+<msg timestamp="20190321 16:24:43.475" level="INFO">${response} = {"isSuccess":false,"description":"Get empty result."}</msg>
+<status status="PASS" endtime="20190321 16:24:43.475" starttime="20190321 16:24:17.057"></status>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>json.loads("""${response}""")</arg>
+<arg>json</arg>
+</arguments>
+<assign>
+<var>${data}</var>
+</assign>
+<msg timestamp="20190321 16:24:43.478" level="INFO">${data} = {u'isSuccess': False, u'description': u'Get empty result.'}</msg>
+<status status="PASS" endtime="20190321 16:24:43.478" starttime="20190321 16:24:43.476"></status>
+</kw>
+<kw name="checkMandroidResultIsSuccess" library="MAndroid2Resources">
+<arguments>
+<arg>${data}</arg>
+</arguments>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['isSuccess']}</arg>
+</arguments>
+<assign>
+<var>${is_success}</var>
+</assign>
+<msg timestamp="20190321 16:24:43.481" level="INFO">${is_success} = False</msg>
+<status status="PASS" endtime="20190321 16:24:43.481" starttime="20190321 16:24:43.480"></status>
+</kw>
+<kw name="Set Variable" library="BuiltIn">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${response['description']}</arg>
+</arguments>
+<assign>
+<var>${description}</var>
+</assign>
+<msg timestamp="20190321 16:24:43.483" level="INFO">${description} = Get empty result.</msg>
+<status status="PASS" endtime="20190321 16:24:43.484" starttime="20190321 16:24:43.482"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Tear down the using device and abort the execution if any Mandroid command was failed.</arg>
+</arguments>
+<status status="PASS" endtime="20190321 16:24:43.485" starttime="20190321 16:24:43.484"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>${is_success}==False</arg>
+<arg>Run Keywords</arg>
+<arg>tearDownUsingDevices</arg>
+<arg>@{device_serial_list}</arg>
+<arg>AND</arg>
+<arg>Fatal Error</arg>
+<arg>msg=${description}</arg>
+</arguments>
+<kw name="Run Keywords" library="BuiltIn">
+<doc>Executes all the given keywords in a sequence.</doc>
+<arguments>
+<arg>tearDownUsingDevices</arg>
+<arg>@{device_serial_list}</arg>
+<arg>AND</arg>
+<arg>Fatal Error</arg>
+<arg>msg=${description}</arg>
+</arguments>
+<kw name="tearDownUsingDevices">
+<arguments>
+<arg>@{device_serial_list}</arg>
+</arguments>
+<kw type="for" name="${device_serial} IN [ @{deviceSerialList} ]">
+<kw type="foritem" name="${device_serial} = 25cb81cc6f0d7ece">
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>device_serial is ${device_serial}.</arg>
+</arguments>
+<msg timestamp="20190321 16:24:43.491" level="INFO">device_serial is 25cb81cc6f0d7ece.</msg>
+<status status="PASS" endtime="20190321 16:24:43.492" starttime="20190321 16:24:43.490"></status>
+</kw>
+<kw name="releaseDevice" library="MCloudResources">
+<arguments>
+<arg>${device_serial}</arg>
+</arguments>
+<kw name="Create Dictionary" library="BuiltIn">
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<arguments>
+<arg>Authorization=${mcloud_token}</arg>
+</arguments>
+<assign>
+<var>${headers}</var>
+</assign>
+<msg timestamp="20190321 16:24:43.495" level="INFO">${headers} = {u'Authorization': u'Bearer 6fc22b08ce00468fa56cc53a22384012e16d1ac9ab12403abeaaa5e14496239e'}</msg>
+<status status="PASS" endtime="20190321 16:24:43.495" starttime="20190321 16:24:43.494"></status>
+</kw>
+<kw name="Delete" library="REST">
+<tags>
+<tag>http</tag>
+</tags>
+<doc>*Sends a DELETE request to the endpoint.*</doc>
+<arguments>
+<arg>/user/devices/${deviceSerial}</arg>
+<arg>headers=${headers}</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:24:43.651" level="INFO">${response} = {u'seconds': 0.151059, u'status': 200, u'body': {u'description': u'Device successfully removed', u'success': True}, u'headers': {'content-length': '60', 'x-powered-by': 'Express', 'connection': 'close...</msg>
+<status status="PASS" endtime="20190321 16:24:43.651" starttime="20190321 16:24:43.496"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:43.652" starttime="20190321 16:24:43.492"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:43.652" starttime="20190321 16:24:43.490"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:43.652" starttime="20190321 16:24:43.489"></status>
+</kw>
+<kw name="Run" library="OperatingSystem">
+<doc>Runs the given command in the system and returns the output.</doc>
+<arguments>
+<arg>adb disconnect</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:24:43.657" level="INFO">Running command 'adb disconnect 2&gt;&amp;1'.</msg>
+<msg timestamp="20190321 16:24:43.711" level="INFO">${response} = disconnected everything</msg>
+<status status="PASS" endtime="20190321 16:24:43.712" starttime="20190321 16:24:43.653"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:43.712" starttime="20190321 16:24:43.488"></status>
+</kw>
+<kw name="Fatal Error" library="BuiltIn">
+<doc>Stops the whole test execution.</doc>
+<arguments>
+<arg>msg=${description}</arg>
+</arguments>
+<msg timestamp="20190321 16:24:43.714" level="FAIL">Get empty result.</msg>
+<status status="FAIL" endtime="20190321 16:24:43.715" starttime="20190321 16:24:43.713"></status>
+</kw>
+<status status="FAIL" endtime="20190321 16:24:43.715" starttime="20190321 16:24:43.487"></status>
+</kw>
+<status status="FAIL" endtime="20190321 16:24:43.716" starttime="20190321 16:24:43.486"></status>
+</kw>
+<status status="FAIL" endtime="20190321 16:24:43.716" starttime="20190321 16:24:43.478"></status>
+</kw>
+<status status="FAIL" endtime="20190321 16:24:43.717" starttime="20190321 16:24:17.056"></status>
+</kw>
+<kw type="teardown" name="Run Keyword If Test Failed" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if the test failed.</doc>
+<arguments>
+<arg>tearDownUsingDevices</arg>
+<arg>@{device_serial_list}</arg>
+</arguments>
+<kw name="tearDownUsingDevices">
+<arguments>
+<arg>@{device_serial_list}</arg>
+</arguments>
+<kw type="for" name="${device_serial} IN [ @{deviceSerialList} ]">
+<kw type="foritem" name="${device_serial} = 25cb81cc6f0d7ece">
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>device_serial is ${device_serial}.</arg>
+</arguments>
+<msg timestamp="20190321 16:24:43.721" level="INFO">device_serial is 25cb81cc6f0d7ece.</msg>
+<status status="PASS" endtime="20190321 16:24:43.722" starttime="20190321 16:24:43.721"></status>
+</kw>
+<kw name="releaseDevice" library="MCloudResources">
+<arguments>
+<arg>${device_serial}</arg>
+</arguments>
+<kw name="Create Dictionary" library="BuiltIn">
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<arguments>
+<arg>Authorization=${mcloud_token}</arg>
+</arguments>
+<assign>
+<var>${headers}</var>
+</assign>
+<msg timestamp="20190321 16:24:43.725" level="INFO">${headers} = {u'Authorization': u'Bearer 6fc22b08ce00468fa56cc53a22384012e16d1ac9ab12403abeaaa5e14496239e'}</msg>
+<status status="PASS" endtime="20190321 16:24:43.725" starttime="20190321 16:24:43.723"></status>
+</kw>
+<kw name="Delete" library="REST">
+<tags>
+<tag>http</tag>
+</tags>
+<doc>*Sends a DELETE request to the endpoint.*</doc>
+<arguments>
+<arg>/user/devices/${deviceSerial}</arg>
+<arg>headers=${headers}</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:24:43.867" level="INFO">${response} = {u'seconds': 0.131773, u'status': 403, u'body': {u'description': u'You cannot release this device. Not owned by you', u'success': False}, u'headers': {'content-length': '82', 'x-powered-by': 'Express'...</msg>
+<status status="PASS" endtime="20190321 16:24:43.867" starttime="20190321 16:24:43.726"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:43.868" starttime="20190321 16:24:43.722"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:43.868" starttime="20190321 16:24:43.720"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:43.868" starttime="20190321 16:24:43.719"></status>
+</kw>
+<kw name="Run" library="OperatingSystem">
+<doc>Runs the given command in the system and returns the output.</doc>
+<arguments>
+<arg>adb disconnect</arg>
+</arguments>
+<assign>
+<var>${response}</var>
+</assign>
+<msg timestamp="20190321 16:24:43.873" level="INFO">Running command 'adb disconnect 2&gt;&amp;1'.</msg>
+<msg timestamp="20190321 16:24:43.952" level="INFO">${response} = disconnected everything</msg>
+<status status="PASS" endtime="20190321 16:24:43.952" starttime="20190321 16:24:43.869"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:43.953" starttime="20190321 16:24:43.718"></status>
+</kw>
+<status status="PASS" endtime="20190321 16:24:43.953" starttime="20190321 16:24:43.718"></status>
+</kw>
+<status status="FAIL" endtime="20190321 16:24:43.954" critical="yes" starttime="20190321 16:23:52.040">Get empty result.</status>
+</test>
+<status status="FAIL" endtime="20190321 16:24:43.955" starttime="20190321 16:23:51.327"></status>
+</suite>
+<status status="FAIL" endtime="20190321 16:24:43.958" starttime="20190321 16:23:51.286"></status>
+</suite>
+<statistics>
+<total>
+<stat fail="1" pass="0">Critical Tests</stat>
+<stat fail="1" pass="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat fail="1" id="s1" name="TestWithMandroid2OnMCloud" pass="0">TestWithMandroid2OnMCloud</stat>
+<stat fail="1" id="s1-s1" name="EntireTest" pass="0">TestWithMandroid2OnMCloud.EntireTest</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

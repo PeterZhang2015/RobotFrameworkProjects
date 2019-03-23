@@ -1,0 +1,121 @@
+*** Settings ***
+Test Teardown     Run Keyword If Test Failed    tearDownUsingDevices    @{device_serial_list}    #Tear down using devices on mcloud.
+Resource          ../Resources/MCloudResources.txt
+Resource          ../Resources/MAndroid2Resources.txt
+
+*** Variables ***
+@{device_serial_list}    #Creat the using device serial list for tear down process.
+${caller_imsi}    505025504563848    #IMSI for the caller user.
+${called_imsi}    505025703492762    #IMSI for the called user.
+${test_caller_apn_name}    Temp    #Testing caller APN name.
+${test_caller_apn}    temp_apn    #Testing caller APN.
+${test_caller_network_type}    LTE    #Testing caller network type.
+${test_called_apn_name}    Optus Yes Internet    #Testing called APN name.
+${test_called_apn}    yesinternet    #Testing called APN.
+${test_called_network_type}    3G    #Testing called network type.
+${web_url}        https://www.google.com    #Web url for web browsing.
+${sms_body}       TestforSMSThroughRobotFramework3    #SMS content body.
+${call_duration}    10    #Call duration after answering the voice call.
+
+*** Test Cases ***
+EntireTest
+    Comment    Connect the caller device and called device on mcloud.
+    ${caller_handset_id}=    connectToMcloudUser    ${caller_imsi}    #Connect to the caller user on mCloud.
+    ${called_handset_id}=    connectToMcloudUser    ${called_imsi}    #Connect to the called user on mCloud.
+    Sleep    5    #Set waiting time for connecting.
+    Comment    Get the user number of the caller user and called user on mcloud.
+    ${caller_user_number}=    getUserNumber    ${caller_handset_id}    #Get the caller user number.
+    ${called_user_number}=    getUserNumber    ${called_handset_id}    #Get the called user number.
+    ${caller_user_number}=    Evaluate    '${caller_user_number}'.replace('+61','0')    #Replace +61 with 0.
+    ${called_user_number}=    Evaluate    '${called_user_number}'.replace('+61','0')    #Replace +61 with 0.
+    Comment    Starting to check whether it needs to switch APN for caller user.
+    ${current_caller_apn}    ${current_caller_apn_name}    checkCurrentAPN    ${caller_handset_id}    #Check current APN for caller user.
+    Run Keyword If    "${current_caller_apn}"!="${test_caller_apn}" or "${current_caller_apn_name}"!="${test_caller_apn_name}"    addAndSelectAPN    ${caller_handset_id}    ${test_caller_apn_name}    ${test_caller_apn}    #Switch APN on caller device if necessary.
+    Comment    Starting to check whether it needs to switch APN for called user.
+    ${current_called_apn}    ${current_called_apn_name}    checkCurrentAPN    ${called_handset_id}    #Check current APN for called user.
+    Run Keyword If    "${current_called_apn}"!="${test_called_apn}" or "${current_called_apn_name}"!="${test_called_apn_name}"    addAndSelectAPN    ${called_handset_id}    ${test_called_apn_name}    ${test_called_apn}    #Switch APN on called device if necessary.
+    Comment    Starting to check whether it needs to switch network type for caller user.
+    attachHandset    ${caller_handset_id}    #Attach caller user.
+    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
+    Run Keyword If    "${callerCurrentNetworkType}"!="${test_caller_network_type}"    Run Keywords    setNetworkType    ${caller_handset_id}    ${test_caller_network_type}
+    ...    AND    log    Switched to the configured network type "${test_caller_network_type}" for ${caller_handset_id}.
+    ...    ELSE    log    There is no need to swtch the network type for ${caller_handset_id}.
+    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
+    Run Keyword If    "${callerCurrentNetworkType}"=="3G" or "${callerCurrentNetworkType}"=="HSPA"    ${callerCurrentNetworkType}=    Set Variable    "3G"
+    Run Keyword If    "${callerCurrentNetworkType}"!="${test_caller_network_type}"    Run Keywords    Fatal Error    msg="Failed to set network type for ${caller_handset_id} "
+    Comment    Starting to check whether it needs to switch network type for called user.
+    attachHandset    ${called_handset_id}    #Attach called user.
+    ${calledCurrentNetworkType}=    checkCurrentNetworkType    ${called_handset_id}    #Get current network type for called user.
+    Run Keyword If    "${calledCurrentNetworkType}"!="${test_called_network_type}"    Run Keywords    setNetworkType    ${called_handset_id}    ${test_called_network_type}
+    ...    AND    log    Switched to the configured network type "${test_called_network_type}" for ${called_handset_id}.
+    ...    ELSE    log    There is no need to swtch the network type for ${called_handset_id}.
+    ${calledCurrentNetworkType}=    checkCurrentNetworkType    ${called_handset_id}    #Get current network type for caller user.
+    Run Keyword If    "${calledCurrentNetworkType}"=="3G" or "${calledCurrentNetworkType}"=="HSPA"    ${calledCurrentNetworkType}=    Set Variable    "3G"
+    Run Keyword If    "${calledCurrentNetworkType}"!="${test_called_network_type}"    Run Keywords    Fatal Error    msg="Failed to set network type for ${caller_handset_id} "
+    Comment    Starting to perform web browsing on caller user.
+    performWebBrowsing    ${caller_handset_id}    ${web_url}    #Browsing the web site.
+    Sleep    5    #Set waiting time for web browsing.
+    Comment    Starting to perform a voice call.
+    placeBasicVoiceCall    ${caller_handset_id}    ${called_user_number}    #Place a voice call on caller side.
+    receiveBasicVoiceCall    ${called_handset_id}    ${caller_user_number}    ${call_duration}    #Receive a voice call on called side.
+    endBasicVoiceCall    ${called_handset_id}
+    Comment    Starting to perform a SMS.
+    sendBasicSMS    ${caller_handset_id}    ${called_user_number}    ${sms_body}    #Send a basic SMS.
+    Sleep    5    #Set duration for the SMS transmission.
+    ${received_sms_body}=    receiveAndReadSMS    ${called_handset_id}    #Read the latest received SMS.
+    Run Keyword If    "${received_sms_body}"!="${sms_body}"    Run Keywords    Fatal Error    msg="Received SMS content ${received_sms_body} is not equal to the sending SMS content ${sms_body}"
+    ...    ELSE    log    SMS from ${caller_user_number} to ${called_user_number} has been received!
+    tearDownUsingDevices    @{device_serial_list}    #Tear down using devices on mcloud.
+
+WebBrowsing
+    Comment    Connect the caller device and called device on mcloud.
+    ${caller_handset_id}=    connectToMcloudUser    ${caller_imsi}    #Connect to the caller user on mCloud.
+    Sleep    5    #Set waiting time for connecting.
+    
+    Comment    Get the user number of the caller user and called user on mcloud.
+    ${caller_user_number}=    getUserNumber    ${caller_handset_id}    #Get the caller user number.
+    ${caller_user_number}=    Evaluate    '${caller_user_number}'.replace('+61','0')    #Replace +61 with 0.
+    
+    Comment    Starting to check whether it needs to switch APN for caller user.
+    ${current_caller_apn}    ${current_caller_apn_name}    checkCurrentAPN    ${caller_handset_id}    #Check current APN for caller user.
+    Run Keyword If    "${current_caller_apn}"!="${test_caller_apn}" or "${current_caller_apn_name}"!="${test_caller_apn_name}"    addAndSelectAPN    ${caller_handset_id}    ${test_caller_apn_name}    ${test_caller_apn}    #Switch APN on caller device if necessary.
+
+    Comment    Starting to check whether it needs to switch network type for caller user.
+    attachHandset    ${caller_handset_id}    #Attach caller user.
+    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
+    Run Keyword If    "${callerCurrentNetworkType}"=="3G" or "${callerCurrentNetworkType}"=="HSPA"    ${callerCurrentNetworkType}=    Set Variable    "3G"
+    log "${callerCurrentNetworkType}: "${callerCurrentNetworkType}
+    Run Keyword If    "${callerCurrentNetworkType}"!="${test_caller_network_type}"    Run Keywords    setNetworkType    ${caller_handset_id}    ${test_caller_network_type}
+    ...    AND    log    Switched to the configured network type "${test_caller_network_type}" for ${caller_handset_id}.
+    ...    ELSE    log    There is no need to swtch the network type for ${caller_handset_id}.
+    ${callerCurrentNetworkType}=    checkCurrentNetworkType    ${caller_handset_id}    #Get current network type for caller user.
+    Run Keyword If    "${callerCurrentNetworkType}"!="${test_caller_network_type}"    Run Keywords    Fatal Error    msg="Failed to set network type for ${caller_handset_id} "
+
+    Comment    Starting to perform web browsing on caller user.
+    performWebBrowsing    ${caller_handset_id}    ${web_url}    #Browsing the web site.
+    Sleep    5    #Set waiting time for web browsing.
+
+
+    tearDownUsingDevices    @{device_serial_list}    #Tear down using devices on mcloud.
+
+
+
+*** Keywords ***
+connectToMcloudUser
+    [Arguments]    ${userIMSI}
+    ${device_serial}=    getDeviceSerialByImsi    ${userIMSI}    #Try to find the device serial of the matched IMSI.
+    Run Keyword If    "${device_serial}"=="${EMPTY}"    Fatal Error    msg="Cannot find the matched IMSI ${userIMSI} on mcloud"    #Abort the execution if it cannot find the matched IMSI on mcloud.
+    requestDevice    ${device_serial}    #Use the device on mcloud.
+    ${response}=    remoteConnect    ${device_serial}    #Get the device remote control url.
+    Comment    Abort the execution if it cannot get the remote control url of the testing device.
+    run Keyword If    "${response['success']}"!="True"    Fatal Error    msg="Fail to remoteConnect ${userIMSI} on mcloud"
+    ...    ELSE    log    connect ${userIMSI} on mcloud successfully
+    ${cmd_response}=    Run    adb connect ${response['remoteConnectUrl']}    #ADB connect to the device on mCloud.
+    [Return]    ${response['remoteConnectUrl']}
+
+tearDownUsingDevices
+    [Arguments]    @{deviceSerialList}
+    : FOR    ${device_serial}    IN    @{deviceSerialList}
+    \    log    device_serial is ${device_serial}.
+    \    releaseDevice    ${device_serial}
+    ${response}=    Run    adb disconnect    #Disconnect all users.

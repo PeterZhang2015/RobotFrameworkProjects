@@ -2,21 +2,22 @@
 Test Teardown     Run Keyword If Test Failed    tearDown
 
 *** Variables ***
-${test}           https://google.com.au
+${scalar}         https://google.com.au
+&{dictionary}     favorited=false
 
 *** Test Cases ***
 Temp
-
+    ${json_string}=    Set Variable   {"favorited": "false", "contributors": "null"}
+    log    ${json_string}
     ${value}=    Set Variable    0
     log    "beginning"    level=WARN
     ${value}=    Set Variable    1
     log    "beginning info"
     ${value}=    Set Variable    2
-    ${data}=    Evaluate    json.loads("""${test}""")    json
-    Suite Teardown
-    log    ${data}    --loglevel    DEBUG
+    ${data}=    Run Keyword And Continue On Failure    Evaluate    json.loads("${json_string}")    json
+    log    "End of the test"
 
 *** Keywords ***
 tearDown
-    ${value}=    Set Variable    3
-    log    "tear down process"    DEBUG
+    ${temp}=    Set Variable    3
+    log    "tear down process"
